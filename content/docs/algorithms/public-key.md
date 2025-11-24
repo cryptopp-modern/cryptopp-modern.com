@@ -91,9 +91,9 @@ int main() {
     );
 
     if (recovered == message) {
-        std::cout << "✓ Signature verified successfully!" << std::endl;
+        std::cout << "Signature verified successfully!" << std::endl;
     } else {
-        std::cout << "✗ Signature verification failed!" << std::endl;
+        std::cout << "Signature verification failed!" << std::endl;
     }
 
     return 0;
@@ -264,7 +264,7 @@ int main() {
 
     // Verify both computed the same shared secret
     if (aliceSharedSecret == bobSharedSecret) {
-        std::cout << "✓ Key exchange successful!" << std::endl;
+        std::cout << "Key exchange successful!" << std::endl;
         std::cout << "Both parties have the same shared secret" << std::endl;
 
         // Convert to hex for display
