@@ -18,6 +18,7 @@ Welcome to the cryptopp-modern documentation!
 - [Argon2](algorithms/argon2) - Password hashing and key derivation
 - [BLAKE3](algorithms/blake3) - Fast cryptographic hash function
 - [Symmetric Encryption](algorithms/symmetric) - AES, ChaCha20, and more
+- [Public-Key Cryptography](algorithms/public-key) - RSA, ECDSA, Ed25519, X25519
 
 ## Migration
 
