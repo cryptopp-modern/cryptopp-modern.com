@@ -14,6 +14,7 @@ Welcome to the cryptopp-modern documentation!
 
 ## Algorithms
 
+- [Algorithm Reference](algorithms/reference) - Complete list of all supported algorithms
 - [Hash Functions](algorithms/hashing) - SHA, BLAKE2, BLAKE3, and more
 - [Argon2](algorithms/argon2) - Password hashing and key derivation
 - [BLAKE3](algorithms/blake3) - Fast cryptographic hash function
