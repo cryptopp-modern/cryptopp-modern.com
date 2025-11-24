@@ -236,46 +236,49 @@ int main() {
     AutoSeededRandomPool rng;
 
     // Alice generates her key pair
-    x25519 alicePrivate, alicePublic;
-    alicePrivate.GenerateRandom(rng);
-    alicePrivate.GeneratePublicKey(alicePublic);
+    x25519 alice;
+    SecByteBlock privA(x25519::SECRET_KEYLENGTH), pubA(x25519::PUBLIC_KEYLENGTH);
+    alice.GeneratePrivateKey(rng, privA);
+    alice.GeneratePublicKey(rng, privA, pubA);
 
     // Bob generates his key pair
-    x25519 bobPrivate, bobPublic;
-    bobPrivate.GenerateRandom(rng);
-    bobPrivate.GeneratePublicKey(bobPublic);
+    x25519 bob;
+    SecByteBlock privB(x25519::SECRET_KEYLENGTH), pubB(x25519::PUBLIC_KEYLENGTH);
+    bob.GeneratePrivateKey(rng, privB);
+    bob.GeneratePublicKey(rng, privB, pubB);
 
     // Alice and Bob exchange public keys (these can be sent over insecure channel)
     // Now they compute the shared secret
 
-    SecByteBlock aliceSharedSecret(32), bobSharedSecret(32);
+    SecByteBlock sharedA(x25519::SHARED_KEYLENGTH);
+    SecByteBlock sharedB(x25519::SHARED_KEYLENGTH);
 
     // Alice computes shared secret using her private key and Bob's public key
-    if (!alicePrivate.Agree(aliceSharedSecret, alicePublic, bobPublic)) {
+    if (!alice.Agree(sharedA, privA, pubB)) {
         std::cerr << "Alice: key agreement failed" << std::endl;
         return 1;
     }
 
     // Bob computes shared secret using his private key and Alice's public key
-    if (!bobPrivate.Agree(bobSharedSecret, bobPublic, alicePublic)) {
+    if (!bob.Agree(sharedB, privB, pubA)) {
         std::cerr << "Bob: key agreement failed" << std::endl;
         return 1;
     }
 
     // Verify both computed the same shared secret
-    if (aliceSharedSecret == bobSharedSecret) {
-        std::cout << "Key exchange successful!" << std::endl;
+    if (sharedA == sharedB) {
+        std::cout << "Key exchange successful" << std::endl;
         std::cout << "Both parties have the same shared secret" << std::endl;
 
         // Convert to hex for display
         std::string hex;
         HexEncoder encoder(new StringSink(hex));
-        encoder.Put(aliceSharedSecret, aliceSharedSecret.size());
+        encoder.Put(sharedA, sharedA.size());
         encoder.MessageEnd();
 
         std::cout << "Shared secret: " << hex << std::endl;
     } else {
-        std::cout << "✗ Key exchange failed - secrets don't match!" << std::endl;
+        std::cout << "Key exchange failed - secrets do not match" << std::endl;
     }
 
     return 0;
@@ -374,17 +377,19 @@ int main() {
     AutoSeededRandomPool rng;
 
     // Alice and Bob perform key exchange
-    x25519 alicePrivate, alicePublic;
-    alicePrivate.GenerateRandom(rng);
-    alicePrivate.GeneratePublicKey(alicePublic);
+    x25519 alice;
+    SecByteBlock privA(x25519::SECRET_KEYLENGTH), pubA(x25519::PUBLIC_KEYLENGTH);
+    alice.GeneratePrivateKey(rng, privA);
+    alice.GeneratePublicKey(rng, privA, pubA);
 
-    x25519 bobPrivate, bobPublic;
-    bobPrivate.GenerateRandom(rng);
-    bobPrivate.GeneratePublicKey(bobPublic);
+    x25519 bob;
+    SecByteBlock privB(x25519::SECRET_KEYLENGTH), pubB(x25519::PUBLIC_KEYLENGTH);
+    bob.GeneratePrivateKey(rng, privB);
+    bob.GeneratePublicKey(rng, privB, pubB);
 
-    SecByteBlock aliceShared(32), bobShared(32);
-    alicePrivate.Agree(aliceShared, alicePublic, bobPublic);
-    bobPrivate.Agree(bobShared, bobPublic, alicePublic);
+    SecByteBlock aliceShared(x25519::SHARED_KEYLENGTH), bobShared(x25519::SHARED_KEYLENGTH);
+    alice.Agree(aliceShared, privA, pubB);
+    bob.Agree(bobShared, privB, pubA);
 
     // Establish secure channels
     SecureChannel aliceChannel, bobChannel;
