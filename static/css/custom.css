@@ -1,0 +1,17 @@
+/* Move table of contents to the left side */
+@media (min-width: 1280px) {
+  /* Override the order-last class to move TOC to the left */
+  nav.hextra-toc.hx-order-last {
+    order: -1 !important;
+  }
+}
+
+/* Force header title to 1.89rem */
+* span.hx-mx-2.hx-font-extrabold.hx-inline.hx-select-none,
+html body header nav span.hx-mx-2.hx-font-extrabold,
+.hx-mx-2.hx-font-extrabold.hx-inline.hx-select-none[title="cryptopp-modern"],
+span.hx-mx-2[title="cryptopp-modern"],
+.hx-mx-2.hx-font-extrabold {
+  font-size: 1.89rem !important;
+  line-height: 1.2 !important;
+}

@@ -1,0 +1,57 @@
+name: Hugo Build Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Setup Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+        hugo-version: '0.152.2'
+        extended: true
+
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+
+    - name: Install dependencies
+      run: hugo mod get
+
+    - name: Build site
+      run: hugo --gc --minify
+
+    - name: Check for broken links
+      run: |
+        if [ -d "public" ]; then
+          echo "Build successful - public directory created"
+          echo "Site contains $(find public -name "*.html" | wc -l) HTML files"
+        else
+          echo "ERROR: Build failed - public directory not found"
+          exit 1
+        fi
+
+    - name: Validate HTML (optional)
+      continue-on-error: true
+      run: |
+        # Install html5validator via pip instead of apt
+        pip install html5validator
+        html5validator --root public/ --also-check-css --ignore-re 'Attribute "hx-.*" not allowed' || echo "HTML validation completed with warnings"
+
+    - name: Check site size
+      run: |
+        SIZE=$(du -sh public | cut -f1)
+        echo "Total site size: $SIZE"

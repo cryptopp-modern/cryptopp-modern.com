@@ -1,0 +1,80 @@
+# Hugo configuration for cryptopp-modern documentation
+baseURL: 'https://cryptopp-modern.com/'
+languageCode: en-us
+title: cryptopp-modern
+
+# Enable GitInfo for last modified dates
+enableGitInfo: true
+
+# Enable emoji support
+enableEmoji: true
+
+# Enable robots.txt generation
+enableRobotsTXT: true
+
+# SEO Configuration
+sitemap:
+  changefreq: weekly
+  filename: sitemap.xml
+  priority: 0.5
+
+# Syntax highlighting
+markup:
+  highlight:
+    noClasses: false
+  goldmark:
+    renderer:
+      unsafe: true
+
+# Menu configuration
+menu:
+  main:
+    - name: Documentation
+      pageRef: /docs
+      weight: 1
+    - name: About
+      pageRef: /about
+      weight: 2
+    - name: GitHub
+      weight: 3
+      url: "https://github.com/cryptopp-modern/cryptopp-modern"
+      params:
+        icon: github
+
+# Module configuration for Hextra theme
+module:
+  imports:
+    - path: github.com/imfing/hextra
+
+# Site parameters
+params:
+  description: "Modern cryptographic library - actively maintained fork of Crypto++ with BLAKE3, Argon2, AES-GCM, and comprehensive security documentation"
+  keywords: ["cryptography", "crypto++", "cryptopp", "BLAKE3", "Argon2", "AES-GCM", "encryption", "hashing", "password hashing", "cryptographic library", "C++", "security", "open source"]
+  author: "cryptopp-modern team"
+
+  # Open Graph / Social Media
+  images: ["images/logo.png"]
+
+  # SEO
+  enableSEO: true
+
+  navbar:
+    displayTitle: true
+    displayLogo: true
+    logo:
+      path: images/logo.png
+      dark: images/logo.png
+      width: 50
+      height: 50
+
+  footer:
+    displayCopyright: true
+    displayPoweredBy: false
+
+  editURL:
+    enable: true
+    base: "https://github.com/cryptopp-modern/cryptopp-modern.com/edit/main/content"
+
+  # Custom CSS (with cache busting)
+  customCSS:
+    - css/custom.css?v=2
