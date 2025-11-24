@@ -1,6 +1,7 @@
 ---
 title: About
 type: about
+description: "About cryptopp-modern - actively maintained fork of Crypto++ 8.9.0 with modern algorithms, calendar versioning, and regular security updates. Open source under Boost License."
 ---
 
 # About cryptopp-modern

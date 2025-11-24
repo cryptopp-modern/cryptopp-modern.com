@@ -1,6 +1,7 @@
 ---
 title: Quick Start
 weight: 30
+description: "Get started with cryptopp-modern in 5 minutes. Copy-paste ready examples for BLAKE3 hashing, Argon2 password hashing, AES encryption, and Ed25519 signatures."
 ---
 
 Get up and running with cryptopp-modern in 5 minutes.

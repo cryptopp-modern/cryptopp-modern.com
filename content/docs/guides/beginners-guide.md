@@ -1,6 +1,7 @@
 ---
 title: Beginner's Guide to Cryptography
 weight: 100
+description: "Complete cryptography tutorial for beginners. Learn BLAKE3 hashing, AES-GCM encryption, Argon2 password hashing, HMAC authentication, and secure random number generation with practical examples."
 ---
 
 This guide is designed for developers new to cryptography. We'll cover common use cases with simple, copy-paste ready examples that follow security best practices.

@@ -1,6 +1,7 @@
 ---
 title: Security Concepts
 weight: 40
+description: "Essential security concepts for cryptopp-modern: SecByteBlock memory protection, constant-time operations, nonce management, key separation, and secure random number generation."
 ---
 
 Understanding key security concepts helps you use cryptography correctly and avoid common vulnerabilities.

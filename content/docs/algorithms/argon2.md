@@ -1,6 +1,7 @@
 ---
 title: Argon2
 weight: 50
+description: "Argon2 password hashing guide (RFC 9106). Learn Argon2id, Argon2i, and Argon2d for secure password storage with resistance to GPU/ASIC attacks and proper parameter tuning."
 ---
 
 Argon2 is the winner of the Password Hashing Competition (2015) and is specified in RFC 9106. It's designed specifically for secure password hashing and key derivation, with built-in resistance to GPU and ASIC attacks.

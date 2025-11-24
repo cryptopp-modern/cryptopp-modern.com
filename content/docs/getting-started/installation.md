@@ -1,6 +1,7 @@
 ---
 title: Installation
 weight: 10
+description: "Step-by-step installation guide for cryptopp-modern on Windows, Linux, and macOS. Build from source with GCC, MinGW, Visual Studio, or use release packages."
 ---
 
 cryptopp-modern is distributed as source releases. Download the latest release package, build, and install on Windows, Linux, and macOS.

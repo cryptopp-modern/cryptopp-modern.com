@@ -1,6 +1,7 @@
 ---
 title: Migration from Crypto++ 8.9.0
 weight: 20
+description: "Step-by-step guide to migrate from Crypto++ 8.9.0 to cryptopp-modern. Drop-in compatible with calendar versioning, new algorithms, and backward compatibility maintained."
 ---
 
 cryptopp-modern is designed to be a drop-in replacement for Crypto++ 8.9.0. Most existing code will work without changes, but there are a few important differences to be aware of.

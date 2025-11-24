@@ -1,6 +1,7 @@
 ---
 title: Hash Functions
 weight: 70
+description: "Comprehensive hash function guide for cryptopp-modern. Compare BLAKE3, SHA-256, SHA-512, SHA-3, and BLAKE2 with performance benchmarks and security recommendations."
 ---
 
 Cryptographic hash functions are fundamental building blocks in cryptography. They produce fixed-size digests from arbitrary-length input and are designed to be one-way and collision-resistant.

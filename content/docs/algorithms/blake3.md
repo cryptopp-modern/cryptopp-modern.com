@@ -1,6 +1,7 @@
 ---
 title: BLAKE3
 weight: 60
+description: "BLAKE3 cryptographic hash function guide. Fast, secure, and parallelizable hashing for file integrity, content addressing, and key derivation with cryptopp-modern."
 ---
 
 BLAKE3 is a modern cryptographic hash function that offers exceptional performance while maintaining strong security properties. It's one of the newest additions to cryptopp-modern.

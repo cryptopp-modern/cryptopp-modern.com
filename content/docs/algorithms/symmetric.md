@@ -1,6 +1,7 @@
 ---
 title: Symmetric Encryption
 weight: 80
+description: "Complete guide to symmetric encryption with cryptopp-modern. Learn AES-GCM, ChaCha20, authenticated encryption modes, and best practices for secure data protection."
 ---
 
 Symmetric encryption uses the same key for both encryption and decryption. cryptopp-modern provides comprehensive support for modern symmetric ciphers and modes of operation.
