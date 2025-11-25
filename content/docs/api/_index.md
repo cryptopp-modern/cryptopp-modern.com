@@ -38,7 +38,7 @@ Authenticated encryption algorithms for encrypting data.
 
 Asymmetric cryptography for signatures and key exchange.
 
-- X25519 (coming soon)
+- [X25519](/docs/api/pubkey/x25519/) - Modern key exchange (recommended)
 - Ed25519 (coming soon)
 - RSA (coming soon)
 - ECDSA (coming soon)
@@ -51,18 +51,12 @@ Message Authentication Codes (MACs) for data authenticity.
 - CMAC (coming soon)
 - Poly1305 (coming soon)
 
-## Random Number Generation
-
-Cryptographically secure random number generators.
-
-- AutoSeededRandomPool (coming soon)
-- OS_GenerateRandomBlock (coming soon)
-
 ## Utilities
 
-Helper classes and utilities.
+Essential utilities for cryptographic operations.
 
-- SecByteBlock (coming soon)
+- [AutoSeededRandomPool](/docs/api/utilities/autoseededrandompool/) - Cryptographic RNG (essential)
+- [SecByteBlock](/docs/api/utilities/secbyteblock/) - Secure memory for keys (essential)
 - HexEncoder/HexDecoder (coming soon)
 - Base64Encoder/Base64Decoder (coming soon)
 - Filters and Pipelines (coming soon)

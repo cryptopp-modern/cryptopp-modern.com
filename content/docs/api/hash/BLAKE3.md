@@ -4,8 +4,7 @@ description: Fast cryptographic hash function with parallelism and tree hashing 
 weight: 1
 ---
 
-**Header:** `#include <cryptopp/blake3.h>`
-**Namespace:** `CryptoPP`
+**Header:** `#include <cryptopp/blake3.h>` | **Namespace:** `CryptoPP`
 **Since:** Crypto++ 8.9
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 

@@ -4,8 +4,7 @@ description: HMAC message authentication code API reference
 weight: 1
 ---
 
-**Header:** `#include <cryptopp/hmac.h>`
-**Namespace:** `CryptoPP`
+**Header:** `#include <cryptopp/hmac.h>` | **Namespace:** `CryptoPP`
 **Since:** Crypto++ 2.1
 
 HMAC (Hash-based Message Authentication Code) provides message authentication using a cryptographic hash function and a secret key. It ensures both data integrity and authenticity - verifying that a message came from a legitimate sender and hasn't been tampered with.

@@ -4,8 +4,7 @@ description: Memory-hard password hashing function with three variants (Argon2d,
 weight: 1
 ---
 
-**Header:** `#include <cryptopp/argon2.h>`
-**Namespace:** `CryptoPP`
+**Header:** `#include <cryptopp/argon2.h>` | **Namespace:** `CryptoPP`
 **Since:** Crypto++ 8.9
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 **Inherits from:** `KeyDerivationFunction`

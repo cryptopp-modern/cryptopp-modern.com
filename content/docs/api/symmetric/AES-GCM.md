@@ -4,8 +4,7 @@ description: AES-GCM authenticated encryption API reference
 weight: 1
 ---
 
-**Header:** `#include <cryptopp/aes.h>` and `#include <cryptopp/gcm.h>`
-**Namespace:** `CryptoPP`
+**Header:** `#include <cryptopp/aes.h>` and `#include <cryptopp/gcm.h>` | **Namespace:** `CryptoPP`
 **Since:** Crypto++ 3.1 (AES), 5.6.0 (GCM mode)
 
 AES-GCM (Advanced Encryption Standard in Galois/Counter Mode) is an authenticated encryption algorithm that provides both confidentiality and authenticity. It's the gold standard for symmetric encryption and is widely used in TLS, IPsec, and disk encryption.
