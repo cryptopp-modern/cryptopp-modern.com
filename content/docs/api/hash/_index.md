@@ -8,7 +8,7 @@ Cryptographic hash functions for data integrity, digital signatures, and content
 
 ## Available Hash Functions
 
-### [BLAKE3](/docs/api/hash/BLAKE3/)
+### [BLAKE3](/docs/api/hash/blake3/)
 **Recommended** - Fastest modern hash function
 - 256-bit security
 - Parallel hashing support

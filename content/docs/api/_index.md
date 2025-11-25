@@ -10,7 +10,7 @@ Complete API documentation for all classes, methods, and functions in the crypto
 
 High-performance cryptographic hash functions for data integrity and digital signatures.
 
-- [BLAKE3](/docs/api/hash/BLAKE3/) - Fastest modern hash function with parallelism support
+- [BLAKE3](/docs/api/hash/blake3/) - Fastest modern hash function with parallelism support
 - SHA-256 (coming soon)
 - SHA-512 (coming soon)
 - SHA-3 (coming soon)
@@ -19,7 +19,7 @@ High-performance cryptographic hash functions for data integrity and digital sig
 
 Secure password hashing and key derivation functions.
 
-- [Argon2](/docs/api/kdf/Argon2/) - Memory-hard password hashing (recommended)
+- [Argon2](/docs/api/kdf/argon2/) - Memory-hard password hashing (recommended)
 - PBKDF2 (coming soon)
 - HKDF (coming soon)
 - bcrypt (coming soon)

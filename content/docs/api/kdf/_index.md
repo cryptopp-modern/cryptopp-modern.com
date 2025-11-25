@@ -8,7 +8,7 @@ Functions for deriving keys from passwords and other secrets.
 
 ## Password Hashing
 
-### [Argon2](/docs/api/kdf/Argon2/) ⭐ Recommended
+### [Argon2](/docs/api/kdf/argon2/) ⭐ Recommended
 Memory-hard password hashing function
 - Three variants: Argon2d, Argon2i, Argon2id
 - Winner of Password Hashing Competition
