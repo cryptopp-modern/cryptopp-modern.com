@@ -27,12 +27,12 @@ Secure password hashing and key derivation functions.
 
 ## Symmetric Encryption
 
-Block and stream ciphers for encrypting data.
+Authenticated encryption algorithms for encrypting data.
 
-- AES (coming soon)
-- ChaCha20 (coming soon)
-- GCM Mode (coming soon)
-- CBC Mode (coming soon)
+- [AES-GCM](/docs/api/symmetric/aes-gcm/) - Industry standard authenticated encryption (recommended)
+- ChaCha20-Poly1305 (coming soon)
+- AES-CCM (coming soon)
+- Block cipher modes (coming soon)
 
 ## Public-Key Cryptography
 
