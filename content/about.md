@@ -1,10 +1,7 @@
 ---
 title: About
-type: about
 description: "About cryptopp-modern - actively maintained fork of Crypto++ 8.9.0 with modern algorithms, calendar versioning, and regular security updates. Open source under Boost License."
 ---
-
-# About cryptopp-modern
 
 cryptopp-modern is an actively maintained fork of Crypto++ 8.9.0, providing a modern cryptographic library with contemporary algorithms, better code organization, and regular security updates.
 
