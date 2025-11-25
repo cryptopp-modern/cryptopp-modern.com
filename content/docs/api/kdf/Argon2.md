@@ -5,8 +5,8 @@ weight: 1
 ---
 
 **Header:** `#include <cryptopp/argon2.h>` | **Namespace:** `CryptoPP`
-**Since:** Crypto++ 8.9
-**Thread Safety:** Not thread-safe per instance; use separate instances per thread
+**Since:** Crypto++ 8.9  
+**Thread Safety:** Not thread-safe per instance; use separate instances per thread  
 **Inherits from:** `KeyDerivationFunction`
 
 Memory-hard password hashing function designed to resist brute-force attacks from GPUs and ASICs. Argon2 won the Password Hashing Competition in 2015 and is standardized in RFC 9106.
