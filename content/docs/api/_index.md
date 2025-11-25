@@ -47,7 +47,7 @@ Asymmetric cryptography for signatures and key exchange.
 
 Message Authentication Codes (MACs) for data authenticity.
 
-- HMAC (coming soon)
+- [HMAC](/docs/api/mac/hmac/) - Hash-based MAC (recommended for most use cases)
 - CMAC (coming soon)
 - Poly1305 (coming soon)
 
