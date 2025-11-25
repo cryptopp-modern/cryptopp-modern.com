@@ -29,3 +29,10 @@ tmp/
 # Environment files
 .env
 .env.local
+
+# API Reference Generation
+doxygen-output/
+Doxyfile.api
+API_*.md
+SUMMARY.md
+scripts/
