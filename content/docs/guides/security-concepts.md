@@ -15,6 +15,7 @@ Understanding key security concepts helps you use cryptography correctly and avo
 - [Authenticate Then Decrypt](#authenticate-then-decrypt)
 - [Secure Random Numbers](#secure-random-numbers)
 - [Key Storage](#key-storage)
+- [Compression Oracles](#compression-oracles)
 
 ---
 
@@ -1200,5 +1201,212 @@ public:
 | Auth Then Decrypt | Verify before decrypting | Use GCM or verify HMAC first |
 | Secure Random | Never use `rand()` | `CryptoPP::AutoSeededRandomPool` |
 | Key Storage | Never hard-code or commit | Use OS key storage or derive from password |
+| Compression | Never compress attacker-influenced data before encryption | Compress only fully-controlled data |
 
 Following these principles will help you avoid the most common cryptographic vulnerabilities!
+
+---
+
+## Compression Oracles
+
+### What Is It?
+
+A **compression oracle** attack exploits the fact that compression algorithms produce smaller output when there's repetition in the input. When an attacker can:
+
+1. Inject data that gets compressed alongside a secret
+2. Observe the resulting compressed (or encrypted) size
+
+...they can learn information about the secret by measuring how well their injected data compresses with it.
+
+### Famous Attacks
+
+- **CRIME** (2012) - Attacked TLS compression, recovered session cookies
+- **BREACH** (2013) - Attacked HTTP compression, recovered CSRF tokens
+- **TIME** (2013) - Timing-based variant of CRIME
+
+These attacks led to TLS compression being disabled by default in all major browsers and servers.
+
+### How It Works
+
+```
+Secret token: "token=ABC123"
+Attacker tries: "token=A" - compresses WELL with secret (shares "token=A")
+Attacker tries: "token=X" - compresses POORLY (no common substring)
+
+By observing output sizes:
+- Smaller output → attacker's guess matches part of secret
+- Character by character, attacker recovers entire secret
+```
+
+### Vulnerable Pattern
+
+```cpp
+// ❌ VULNERABLE: Attacker controls part of plaintext
+std::string buildRequest(const std::string& userInput,
+                          const std::string& secretToken) {
+    return "User-Agent: " + userInput +
+           "\r\nAuthorization: Bearer " + secretToken;
+}
+
+void sendEncrypted(const std::string& userInput,
+                   const std::string& secretToken,
+                   const CryptoPP::SecByteBlock& key) {
+    std::string request = buildRequest(userInput, secretToken);
+
+    // Step 1: Compress (DANGEROUS!)
+    std::string compressed;
+    CryptoPP::ZlibCompressor compressor(
+        new CryptoPP::StringSink(compressed)
+    );
+    CryptoPP::StringSource(request, true,
+        new CryptoPP::Redirector(compressor)
+    );
+    compressor.MessageEnd();
+
+    // Step 2: Encrypt
+    std::string ciphertext;
+    // ... encryption ...
+
+    // Attacker observes ciphertext.size() and learns about secretToken!
+}
+```
+
+**Attack in practice:**
+
+1. Attacker sends request with `userInput = "Authorization: Bearer A"`
+2. If secret starts with "A", compression finds repetition → smaller size
+3. Attacker sends `userInput = "Authorization: Bearer B"`
+4. Larger size → secret doesn't start with "B"
+5. Repeat to extract entire token character by character
+
+### Safe Patterns
+
+#### Pattern 1: Don't Compress User-Controlled Data
+
+```cpp
+// ✅ SAFE: Only compress application-controlled data
+void safeEncrypt(const std::string& internalData,
+                 const CryptoPP::SecByteBlock& key) {
+    // No user input mixed with secrets - safe to compress
+    std::string compressed;
+    CryptoPP::ZlibCompressor compressor(
+        new CryptoPP::StringSink(compressed)
+    );
+    CryptoPP::StringSource(internalData, true,
+        new CryptoPP::Redirector(compressor)
+    );
+    compressor.MessageEnd();
+
+    // Encrypt compressed data
+    // ...
+}
+```
+
+#### Pattern 2: Separate Secret from User Data
+
+```cpp
+// ✅ SAFE: Compress and encrypt separately
+void safeSeparate(const std::string& userInput,
+                  const std::string& secretToken,
+                  const CryptoPP::SecByteBlock& key) {
+    // Compress user data only (no secret)
+    std::string compressedUserData;
+    CryptoPP::ZlibCompressor compressor(
+        new CryptoPP::StringSink(compressedUserData)
+    );
+    CryptoPP::StringSource(userInput, true,
+        new CryptoPP::Redirector(compressor)
+    );
+    compressor.MessageEnd();
+
+    // Encrypt user data
+    std::string encryptedUserData = encrypt(compressedUserData, key);
+
+    // Encrypt secret separately (no compression)
+    std::string encryptedToken = encrypt(secretToken, key);
+
+    // Attacker can't correlate sizes
+}
+```
+
+#### Pattern 3: Pad to Fixed Size
+
+```cpp
+// ✅ SAFE: Hide compression ratio with padding
+void safePadded(const std::string& data,
+                const CryptoPP::SecByteBlock& key) {
+    // Compress
+    std::string compressed;
+    CryptoPP::ZlibCompressor compressor(
+        new CryptoPP::StringSink(compressed)
+    );
+    CryptoPP::StringSource(data, true,
+        new CryptoPP::Redirector(compressor)
+    );
+    compressor.MessageEnd();
+
+    // Pad to fixed block size (e.g., 4KB)
+    const size_t BLOCK_SIZE = 4096;
+    size_t paddedSize = ((compressed.size() / BLOCK_SIZE) + 1) * BLOCK_SIZE;
+    compressed.resize(paddedSize, '\0');
+
+    // Encrypt - all outputs are multiple of 4KB
+    std::string ciphertext = encrypt(compressed, key);
+
+    // Attacker sees same size for many different inputs
+}
+```
+
+#### Pattern 4: Don't Compress at All
+
+```cpp
+// ✅ SAFEST: Skip compression when secrets involved
+void safestNoCompression(const std::string& userInput,
+                          const std::string& secretToken,
+                          const CryptoPP::SecByteBlock& key) {
+    std::string combined = userInput + secretToken;
+
+    // Encrypt directly - no compression oracle possible
+    std::string ciphertext = encrypt(combined, key);
+}
+```
+
+### When Compression Is Safe
+
+✅ **Safe to compress then encrypt:**
+
+| Scenario | Why Safe |
+|----------|----------|
+| Backup archives | Attacker can't inject content or observe sizes |
+| Application logs (internal) | No user-controlled content mixed with secrets |
+| Static assets | No secrets in data |
+| Fully-controlled protocols | Both parties trusted, no injection point |
+
+❌ **Dangerous to compress then encrypt:**
+
+| Scenario | Why Dangerous |
+|----------|---------------|
+| HTTP responses with cookies | User input + secret in same response |
+| API requests with tokens | Headers/body may contain secrets + user data |
+| Web forms with CSRF tokens | Attacker can craft requests to test |
+| Any protocol with reflection | User data echoed alongside secrets |
+
+### TLS and HTTP Compression
+
+**TLS compression:** Disabled by default since ~2012. Don't enable it.
+
+**HTTP compression (gzip):** Still used, but:
+- Never compress responses containing secrets AND user-reflected content
+- Use `SameSite` cookies and other mitigations
+- Consider per-request CSRF tokens that are single-use
+
+### Summary: Compression Oracles
+
+**Key Points:**
+- Compression + encryption + attacker-controlled input = information leak
+- CRIME/BREACH showed this is practical (cookie theft in seconds)
+- Never compress data where attacker controls part and you have secrets
+- Safe options: separate data, pad to fixed size, or skip compression
+- TLS compression should remain disabled
+
+**Rule of Thumb:** If an attacker can influence any part of data that will be compressed alongside a secret, and they can observe the output size, don't compress.

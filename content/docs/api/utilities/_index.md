@@ -94,6 +94,21 @@ Pipeline branching and data duplication
 - Tee: Send data to multiple destinations
 - Redirector: Forward without taking ownership
 
+## Compression
+
+### [Compression (Zlib, Gzip, Deflate)](/docs/api/utilities/compression/)
+Data compression utilities
+- Zlib, Gzip, and raw Deflate formats
+- Variable compression levels (0-9)
+- **Security warning:** Compression oracles (CRIME/BREACH)
+
+**Use for:**
+- Compressing data before encryption (when safe)
+- File compression
+- Network data reduction
+
+**Security note:** Never compress attacker-controlled data alongside secrets before encryption. See [Compression Oracles](/docs/guides/security-concepts#compression-oracles).
+
 ## Advanced Utilities
 
 ### [Integer](/docs/api/utilities/integer/)
