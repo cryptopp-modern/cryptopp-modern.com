@@ -65,7 +65,7 @@ Version 2025.12.0 reorganizes 204+ source files into categorized directories (co
 
 ### Comprehensive Algorithm Support
 
-**Hash Functions:** SHA-2, SHA-3, BLAKE2b/s, BLAKE3, MD5, RIPEMD, Tiger, Whirlpool, SipHash
+**Hash Functions:** SHA-2, SHA-3, BLAKE2b/s, BLAKE3, MD5, RIPEMD, Tiger, Whirlpool
 
 **Symmetric Encryption:** AES, ChaCha20, Serpent, Twofish, Camellia, ARIA with modes GCM, CCM, EAX, CBC, CTR, CFB, OFB
 
