@@ -35,6 +35,8 @@ SHA-256: ~10 million hashes/second on a CPU
 Argon2id: ~10 hashes/second (with proper parameters)
 ```
 
+*(Numbers are order-of-magnitude examples; real values depend on hardware, drivers, and implementation.)*
+
 An attacker with a stolen database can try billions of password guesses per second with fast hashes, but only a handful with Argon2.
 
 ### The Attack Scenario
@@ -53,7 +55,7 @@ An attacker with a stolen database can try billions of password guesses per seco
 | **Argon2id** | ✅ Yes | ✅ **Best choice** | RFC 9106, PHC winner |
 | **scrypt** | ✅ Yes | ✅ Good | RFC 7914, proven |
 | **bcrypt** | ⚠️ Limited | ⚠️ Acceptable | 72-byte password limit |
-| **PBKDF2** | ❌ No | ⚠️ Legacy only | FIPS compliant but weak |
+| **PBKDF2** | ❌ No | ⚠️ Legacy only | FIPS compliant, GPU-friendly |
 | **SHA-256** | ❌ No | ❌ Never | Too fast |
 | **MD5** | ❌ No | ❌ Never | Broken and too fast |
 
@@ -352,8 +354,11 @@ bool badVerify(const SecByteBlock& a, const SecByteBlock& b) {
     return a == b;  // Short-circuits on first difference!
 }
 
-// CORRECT - constant time
+// CORRECT - constant time comparison for equal-length buffers
 bool goodVerify(const SecByteBlock& a, const SecByteBlock& b) {
+    if (a.size() != b.size()) {
+        return false;
+    }
     return VerifyBufsEqual(a, b, a.size());
 }
 ```
@@ -373,6 +378,7 @@ static byte globalSalt[16] = {...};  // Rainbow table attack!
 std::string salt = username;  // Attackers can precompute
 
 // CORRECT - random per password
+AutoSeededRandomPool rng;
 SecByteBlock salt(16);
 rng.GenerateBlock(salt, salt.size());
 ```
@@ -467,6 +473,7 @@ bool loginAndUpgrade(const std::string& username,
 #include <iostream>
 #include <string>
 #include <map>
+#include <cstring>
 
 using namespace CryptoPP;
 
@@ -525,10 +532,11 @@ bool loginUser(const std::string& username,
         // Don't reveal whether user exists!
         // Still do a hash to prevent timing attacks
         SecByteBlock dummy(32), dummySalt(16);
+        std::memset(dummySalt.BytePtr(), 0, dummySalt.size());
         Argon2id argon2;
-        argon2.DeriveKey(dummy, 32,
+        argon2.DeriveKey(dummy, dummy.size(),
             (const byte*)password.data(), password.size(),
-            dummySalt, 16, 3, 65536, 4);
+            dummySalt, dummySalt.size(), 3, 65536, 4);
         return false;
     }
 
