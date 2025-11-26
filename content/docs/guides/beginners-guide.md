@@ -273,35 +273,59 @@ int main() {
 ```cpp
 #include <cryptopp/aes.h>
 #include <cryptopp/gcm.h>
-#include <cryptopp/files.h>
+#include <cryptopp/filters.h>
 #include <cryptopp/osrng.h>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <iterator>
 
 bool encryptFile(const std::string& inputFile,
                  const std::string& outputFile,
                  const CryptoPP::SecByteBlock& key) {
-    CryptoPP::AutoSeededRandomPool prng;
-
-    // Generate random nonce
-    CryptoPP::SecByteBlock nonce(12);
-    prng.GenerateBlock(nonce, nonce.size());
-
     try {
-        // Write nonce to output file first
-        std::ofstream out(outputFile, std::ios::binary);
-        out.write((char*)nonce.data(), nonce.size());
-        out.close();
+        // Read whole file into memory (fine for most beginner examples)
+        std::ifstream in(inputFile, std::ios::binary);
+        if (!in) {
+            std::cerr << "Error opening input file: " << inputFile << std::endl;
+            return false;
+        }
 
-        // Encrypt file and append to output
+        std::string plaintext(
+            (std::istreambuf_iterator<char>(in)),
+            std::istreambuf_iterator<char>()
+        );
+        in.close();
+
+        // Generate random 96-bit nonce (must be unique per encryption)
+        CryptoPP::AutoSeededRandomPool prng;
+        CryptoPP::SecByteBlock nonce(12);
+        prng.GenerateBlock(nonce, nonce.size());
+
+        // Encrypt plaintext
+        std::string ciphertext;
         CryptoPP::GCM<CryptoPP::AES>::Encryption enc;
         enc.SetKeyWithIV(key, key.size(), nonce, nonce.size());
 
-        CryptoPP::FileSource(inputFile.c_str(), true,
-            new CryptoPP::AuthenticatedEncryptionFilter(enc,
-                new CryptoPP::FileSink(outputFile.c_str(), false)  // append mode
+        CryptoPP::StringSource ss(
+            plaintext,
+            true,
+            new CryptoPP::AuthenticatedEncryptionFilter(
+                enc,
+                new CryptoPP::StringSink(ciphertext)
             )
         );
+
+        // Write file as: [nonce || ciphertext]
+        std::ofstream out(outputFile, std::ios::binary);
+        if (!out) {
+            std::cerr << "Error opening output file: " << outputFile << std::endl;
+            return false;
+        }
+
+        out.write(reinterpret_cast<const char*>(nonce.data()), nonce.size());
+        out.write(ciphertext.data(), ciphertext.size());
+        out.close();
 
         return true;
     }
@@ -315,21 +339,50 @@ bool decryptFile(const std::string& inputFile,
                  const std::string& outputFile,
                  const CryptoPP::SecByteBlock& key) {
     try {
-        // Read nonce from file
+        // Read whole file
         std::ifstream in(inputFile, std::ios::binary);
+        if (!in) {
+            std::cerr << "Error opening input file: " << inputFile << std::endl;
+            return false;
+        }
+
+        // Read nonce (first 12 bytes)
         CryptoPP::SecByteBlock nonce(12);
-        in.read((char*)nonce.data(), nonce.size());
+        in.read(reinterpret_cast<char*>(nonce.data()), nonce.size());
+        if (!in) {
+            std::cerr << "Error reading nonce from file" << std::endl;
+            return false;
+        }
+
+        // Read ciphertext (rest of file)
+        std::string ciphertext(
+            (std::istreambuf_iterator<char>(in)),
+            std::istreambuf_iterator<char>()
+        );
         in.close();
 
-        // Decrypt (skip first 12 bytes which is the nonce)
+        // Decrypt
+        std::string plaintext;
         CryptoPP::GCM<CryptoPP::AES>::Decryption dec;
         dec.SetKeyWithIV(key, key.size(), nonce, nonce.size());
 
-        CryptoPP::FileSource(inputFile.c_str(), true,
-            new CryptoPP::AuthenticatedDecryptionFilter(dec,
-                new CryptoPP::FileSink(outputFile.c_str())
+        CryptoPP::StringSource ss(
+            ciphertext,
+            true,
+            new CryptoPP::AuthenticatedDecryptionFilter(
+                dec,
+                new CryptoPP::StringSink(plaintext)
             )
         );
+
+        std::ofstream out(outputFile, std::ios::binary);
+        if (!out) {
+            std::cerr << "Error opening output file: " << outputFile << std::endl;
+            return false;
+        }
+
+        out.write(plaintext.data(), plaintext.size());
+        out.close();
 
         return true;
     }
@@ -488,9 +541,11 @@ int main() {
 ```cpp
 #include <cryptopp/hmac.h>
 #include <cryptopp/sha.h>
-#include <cryptopp/hex.h>
 #include <cryptopp/filters.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/secblock.h>
 #include <cryptopp/osrng.h>
+#include <string>
 #include <iostream>
 
 class MessageAuth {
@@ -503,32 +558,79 @@ public:
         prng.GenerateBlock(key, key.size());
     }
 
-    // Create authentication tag for a message
+    // Create authentication tag for a message (returns hex)
     std::string sign(const std::string& message) {
-        std::string mac;
+        std::string mac;     // raw MAC bytes
+        std::string macHex;  // hex-encoded MAC
+
         CryptoPP::HMAC<CryptoPP::SHA256> hmac(key, key.size());
 
-        CryptoPP::StringSource(message, true,
-            new CryptoPP::HashFilter(hmac,
-                new CryptoPP::HexEncoder(
-                    new CryptoPP::StringSink(mac)
-                )
+        // Compute MAC
+        CryptoPP::StringSource ss(
+            message,
+            true,
+            new CryptoPP::HashFilter(
+                hmac,
+                new CryptoPP::StringSink(mac)
             )
         );
 
-        return mac;
+        // Encode MAC as hex for easy storage/transmission
+        CryptoPP::StringSource ss2(
+            mac,
+            true,
+            new CryptoPP::HexEncoder(
+                new CryptoPP::StringSink(macHex),
+                false  // lowercase
+            )
+        );
+
+        return macHex;
     }
 
-    // Verify a message's authentication tag
+    // Verify a message's authentication tag (constant-time comparison)
+    // 💡 Why constant-time? See: /docs/guides/security-concepts#constant-time-operations
     bool verify(const std::string& message, const std::string& macHex) {
-        std::string computedMac = sign(message);
-
-        // Constant-time comparison
-        if (computedMac.size() != macHex.size()) {
+        // 1) Decode provided MAC from hex to raw bytes
+        std::string mac;
+        try {
+            CryptoPP::StringSource ss(
+                macHex,
+                true,
+                new CryptoPP::HexDecoder(
+                    new CryptoPP::StringSink(mac)
+                )
+            );
+        }
+        catch (const CryptoPP::Exception& e) {
+            // Invalid hex input
+            std::cerr << "MAC decode error: " << e.what() << std::endl;
             return false;
         }
 
-        return computedMac == macHex;
+        // 2) Recompute MAC for this message (raw bytes, not hex)
+        std::string computed;
+        CryptoPP::HMAC<CryptoPP::SHA256> hmac(key, key.size());
+
+        CryptoPP::StringSource ss2(
+            message,
+            true,
+            new CryptoPP::HashFilter(
+                hmac,
+                new CryptoPP::StringSink(computed)
+            )
+        );
+
+        // 3) Constant-time comparison (prevents timing attacks)
+        if (mac.size() != computed.size()) {
+            return false;
+        }
+
+        return CryptoPP::VerifyBufsEqual(
+            reinterpret_cast<const CryptoPP::byte*>(mac.data()),
+            reinterpret_cast<const CryptoPP::byte*>(computed.data()),
+            mac.size()
+        );
     }
 };
 
@@ -647,9 +749,13 @@ std::string key = "mysecretkey123";
 
 **Good:** Load from secure configuration
 ```cpp
+#include <cstdlib>  // for std::getenv
+
 // Store in environment variable, config file, or key management system
-std::string keyHex = std::getenv("ENCRYPTION_KEY");
-// Load key from hex string
+const char* keyHex = std::getenv("ENCRYPTION_KEY");
+if (keyHex) {
+    // Load key from hex string
+}
 ```
 
 **Better:** Use OS key storage (Windows: DPAPI, Linux: Keyring, macOS: Keychain)
@@ -676,12 +782,13 @@ All three components can be transmitted in the clear - only the key must be secr
 
 ### Can I use this in production?
 
-Yes! cryptopp-modern is production-ready. The examples above follow security best practices.
+Yes, cryptopp-modern is designed for production use, and these examples follow security best practices.
 
-**However:**
-- Test thoroughly
+**However**, your overall system still needs proper testing and review:
+- Test thoroughly in your specific environment
 - Consider professional security audit for critical applications
 - Keep library updated for security patches
+- These examples are educational - adapt error handling for your needs
 
 ---
 
@@ -712,66 +819,87 @@ Now that you understand the basics:
 
 ## Complete Example: Secure Note Application
 
-Putting it all together - a simple encrypted note storage application:
+Putting it all together - a simple encrypted note storage application.
+
+**File format:** `[salt (16 bytes) || nonce (12 bytes) || ciphertext]`
+
+This ensures the same password produces the same key when loading a previously saved note.
 
 ```cpp
 #include <cryptopp/aes.h>
 #include <cryptopp/gcm.h>
 #include <cryptopp/argon2.h>
 #include <cryptopp/osrng.h>
-#include <cryptopp/hex.h>
 #include <cryptopp/filters.h>
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <iterator>
 
 class SecureNotes {
 private:
-    CryptoPP::SecByteBlock masterKey;
+    std::string password;
     CryptoPP::AutoSeededRandomPool prng;
 
-    // Derive encryption key from password
-    void deriveKeyFromPassword(const std::string& password) {
-        CryptoPP::SecByteBlock salt(16);
-        // In real app, store salt with encrypted data
-        prng.GenerateBlock(salt, salt.size());
+    // Derive a 256-bit key from password + salt using Argon2id
+    CryptoPP::SecByteBlock deriveKey(const std::string& pwd,
+                                     const CryptoPP::SecByteBlock& salt) {
+        CryptoPP::SecByteBlock key(32); // 256-bit key
 
-        masterKey.resize(32);
         CryptoPP::Argon2id argon2;
         argon2.DeriveKey(
-            masterKey, masterKey.size(),
-            (const CryptoPP::byte*)password.data(), password.size(),
+            key, key.size(),
+            reinterpret_cast<const CryptoPP::byte*>(pwd.data()), pwd.size(),
             salt, salt.size(),
-            nullptr, 0, nullptr, 0,
-            3, 65536
+            nullptr, 0,   // no secret
+            nullptr, 0,   // no additional data
+            3,            // time cost
+            65536         // memory cost (64 MB)
         );
+
+        return key;
     }
 
 public:
-    SecureNotes(const std::string& password) {
-        deriveKeyFromPassword(password);
-    }
+    explicit SecureNotes(const std::string& pwd)
+        : password(pwd) {}
 
+    // Save encrypted note to disk
     bool saveNote(const std::string& filename, const std::string& note) {
         try {
-            // Generate nonce
-            CryptoPP::SecByteBlock nonce(12);
+            // 1) Generate random salt and nonce
+            CryptoPP::SecByteBlock salt(16);   // 128-bit salt
+            CryptoPP::SecByteBlock nonce(12);  // 96-bit GCM nonce
+
+            prng.GenerateBlock(salt, salt.size());
             prng.GenerateBlock(nonce, nonce.size());
 
-            // Encrypt
+            // 2) Derive key from password + salt
+            CryptoPP::SecByteBlock key = deriveKey(password, salt);
+
+            // 3) Encrypt note with AES-GCM
             std::string ciphertext;
             CryptoPP::GCM<CryptoPP::AES>::Encryption enc;
-            enc.SetKeyWithIV(masterKey, masterKey.size(), nonce, nonce.size());
+            enc.SetKeyWithIV(key, key.size(), nonce, nonce.size());
 
-            CryptoPP::StringSource(note, true,
-                new CryptoPP::AuthenticatedEncryptionFilter(enc,
+            CryptoPP::StringSource ss(
+                note,
+                true,
+                new CryptoPP::AuthenticatedEncryptionFilter(
+                    enc,
                     new CryptoPP::StringSink(ciphertext)
                 )
             );
 
-            // Save to file: nonce + ciphertext
+            // 4) Write file as: [salt || nonce || ciphertext]
             std::ofstream out(filename, std::ios::binary);
-            out.write((char*)nonce.data(), nonce.size());
+            if (!out) {
+                std::cerr << "Error opening file for writing: " << filename << std::endl;
+                return false;
+            }
+
+            out.write(reinterpret_cast<const char*>(salt.data()), salt.size());
+            out.write(reinterpret_cast<const char*>(nonce.data()), nonce.size());
             out.write(ciphertext.data(), ciphertext.size());
             out.close();
 
@@ -783,29 +911,50 @@ public:
         }
     }
 
+    // Load and decrypt note from disk
     bool loadNote(const std::string& filename, std::string& note) {
         try {
-            // Read file
             std::ifstream in(filename, std::ios::binary);
-            if (!in) return false;
+            if (!in) {
+                std::cerr << "Error opening file for reading: " << filename << std::endl;
+                return false;
+            }
 
-            // Read nonce
+            // 1) Read salt (16 bytes) and nonce (12 bytes)
+            CryptoPP::SecByteBlock salt(16);
             CryptoPP::SecByteBlock nonce(12);
-            in.read((char*)nonce.data(), nonce.size());
 
-            // Read ciphertext
+            in.read(reinterpret_cast<char*>(salt.data()), salt.size());
+            if (!in) {
+                std::cerr << "Error reading salt from file" << std::endl;
+                return false;
+            }
+
+            in.read(reinterpret_cast<char*>(nonce.data()), nonce.size());
+            if (!in) {
+                std::cerr << "Error reading nonce from file" << std::endl;
+                return false;
+            }
+
+            // 2) Read ciphertext (rest of file)
             std::string ciphertext(
                 (std::istreambuf_iterator<char>(in)),
                 std::istreambuf_iterator<char>()
             );
             in.close();
 
-            // Decrypt
-            CryptoPP::GCM<CryptoPP::AES>::Decryption dec;
-            dec.SetKeyWithIV(masterKey, masterKey.size(), nonce, nonce.size());
+            // 3) Derive key from password + salt
+            CryptoPP::SecByteBlock key = deriveKey(password, salt);
 
-            CryptoPP::StringSource(ciphertext, true,
-                new CryptoPP::AuthenticatedDecryptionFilter(dec,
+            // 4) Decrypt
+            CryptoPP::GCM<CryptoPP::AES>::Decryption dec;
+            dec.SetKeyWithIV(key, key.size(), nonce, nonce.size());
+
+            CryptoPP::StringSource ss(
+                ciphertext,
+                true,
+                new CryptoPP::AuthenticatedDecryptionFilter(
+                    dec,
                     new CryptoPP::StringSink(note)
                 )
             );
@@ -824,12 +973,14 @@ int main() {
     SecureNotes notes(password);
 
     // Save a note
-    std::string myNote = "This is my secret note!\nIt's encrypted with my password.";
+    std::string myNote =
+        "This is my secret note!\n"
+        "It's encrypted with my password.";
     if (notes.saveNote("secret.enc", myNote)) {
         std::cout << "Note saved successfully" << std::endl;
     }
 
-    // Load the note
+    // Load the note (works even after program restart!)
     std::string loadedNote;
     if (notes.loadNote("secret.enc", loadedNote)) {
         std::cout << "Note loaded successfully:" << std::endl;
@@ -843,7 +994,7 @@ int main() {
 This example demonstrates:
 - Password-based key derivation (Argon2)
 - Authenticated encryption (AES-GCM)
-- Proper nonce handling
+- Proper **salt + nonce** handling (both persisted in file)
 - File I/O with encrypted data
 - Error handling
 
