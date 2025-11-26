@@ -5,7 +5,7 @@ weight: 2
 ---
 
 **Header:** `#include <cryptopp/hkdf.h>` | **Namespace:** `CryptoPP`
-**Since:** Crypto++ 5.6.3
+**Since:** Crypto++ 5.6.3  
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 **Inherits from:** `KeyDerivationFunction`
 
