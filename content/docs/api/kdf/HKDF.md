@@ -427,14 +427,16 @@ hkdf.DeriveKey(output, outLen, ikm, ikmLen,
                nullptr, 0,  // NULL salt → zeros used internally
                info, infoLen);
 
-// Empty salt (non-NULL pointer): Different from NULL
-byte emptySalt[0];
+// Empty salt (non-NULL pointer): different from NULL
+byte dummy = 0;
+byte* emptySalt = &dummy;
+
 hkdf.DeriveKey(output, outLen, ikm, ikmLen,
                emptySalt, 0,  // Empty but non-NULL
                info, infoLen);
 
 // Explicit salt (recommended)
-byte salt[16] = {...};
+byte salt[16] = { /* ... */ };
 hkdf.DeriveKey(output, outLen, ikm, ikmLen,
                salt, sizeof(salt),  // Explicit salt
                info, infoLen);
@@ -473,13 +475,15 @@ SecByteBlock macKey = output;
 
 ### Speed (Approximate)
 
-| Hash Function | Speed (MB/s) | Security Level |
-|---------------|--------------|----------------|
-| HKDF<SHA256> | 400-800 | 128-bit |
-| HKDF<SHA512> | 600-1200 | 256-bit |
-| HKDF<SHA1> | 500-1000 | Legacy only |
+| Variant | Speed (MB/s)* | Typical Security Level |
+|---------|---------------|------------------------|
+| HKDF-SHA256 | 400–800 | ~128-bit |
+| HKDF-SHA512 | 600–1200 | ~256-bit |
+| HKDF-SHA1 (legacy) | 500–1000 | Legacy only |
 
-**HKDF is very fast (single HMAC pass).**
+*Very rough ballpark figures on modern CPUs. Actual performance depends on hardware and compiler, and is dominated by the cost of the underlying HMAC.
+
+HKDF adds minimal overhead on top of HMAC: one HMAC for the "extract" step, plus one HMAC per `HashLen` bytes of output during "expand".
 
 ### Comparison with Other KDFs
 
@@ -496,11 +500,11 @@ SecByteBlock macKey = output;
 
 ### Security Properties
 
-- **Extractability:** Extracts entropy from non-uniform secrets
-- **Expansion:** Generates multiple keys from single secret
-- **Security:** Depends on underlying HMAC hash function
-- **Standard:** RFC 5869
-- **Proof:** Proven secure under ideal cipher model
+- **Extractability:** Extracts entropy from non-uniform secrets (when salt is non-trivial)
+- **Expansion:** Generates multiple keys from a single secret (extract-then-expand)
+- **Security:** Reduces to the PRF / random-oracle security of HMAC with the chosen hash
+- **Standard:** RFC 5869, also aligned with NIST SP 800-56C (extract-then-expand KDFs)
+- **Proof:** Security proven in the PRF / random-oracle model (see RFC 5869 and HKDF paper)
 
 ### Hash Function Selection
 

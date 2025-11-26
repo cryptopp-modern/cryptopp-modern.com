@@ -5,7 +5,7 @@ weight: 1
 ---
 
 **Header:** `#include <cryptopp/argon2.h>` | **Namespace:** `CryptoPP`
-**Since:** Crypto++ 8.9  
+**Since:** cryptopp-modern 2025.11.0  
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread  
 **Inherits from:** `KeyDerivationFunction`
 
@@ -62,14 +62,15 @@ Argon2 is a password hashing function specifically designed to resist attacks fr
 {{< callout type="info" >}}
 **Do:**
 - Use **Argon2id** for password hashing (recommended by RFC 9106)
-- Use at minimum: t=3, m=65536 (64 MiB), p=4
+- For general-purpose servers, a good default is: t=3, m=65536 (64 MiB), p=4 (RFC 9106 "low memory" profile)
+- Never go below roughly: t=2, m≈19 MiB, p=1 (OWASP absolute minimum)
 - Generate a **unique random salt** (≥16 bytes) for each password
 - Store salt alongside the hash (salt is not secret)
 - Verify passwords by re-hashing with the same salt and comparing
 - Increase parameters on more powerful servers (t=1, m=2097152 for 2 GiB)
 
 **Avoid:**
-- Using Argon2 for key derivation (use [HKDF](/docs/api/kdf/HKDF/) instead)
+- Using Argon2 to derive keys from existing high-entropy secrets (use [HKDF](/docs/api/kdf/HKDF/) instead – Argon2 is for password-based key derivation)
 - Reusing salts across different passwords
 - Using predictable salts (timestamps, usernames, etc.)
 - Parameters below minimum: t < 1, m < 8*p, p < 1
@@ -273,13 +274,14 @@ argon2.DeriveKey(hash, 32, password, passLen, salt, 16,
     8);       // p=8 threads
 ```
 
-**Faster (minimum acceptable):**
+**Lower-cost configuration (OWASP minimum):**
 ```cpp
-// Faster but less secure - takes ~100ms
+// Example of a lower-cost configuration for constrained systems.
+// Use only if you can't afford the RFC 9106 / 64 MiB profiles.
 argon2.DeriveKey(hash, 32, password, passLen, salt, 16,
     2,     // t=2 iterations
-    19456, // m=19 MiB
-    1);    // p=1 thread (no parallelism)
+    19456, // m=19 MiB (≈ OWASP minimum)
+    1);    // p=1 thread
 ```
 
 **Rule of thumb:**
@@ -357,7 +359,14 @@ bool VerifyPassword(const std::string& password, const PasswordHash& stored) {
         new HexDecoder(new StringSink(storedHashBytes)));
 
     // Constant-time comparison
-    return storedHashBytes == std::string((char*)hashBytes, sizeof(hashBytes));
+    if (storedHashBytes.size() != sizeof(hashBytes)) {
+        return false;
+    }
+
+    return VerifyBufsEqual(
+        reinterpret_cast<const byte*>(storedHashBytes.data()),
+        hashBytes,
+        sizeof(hashBytes));
 }
 
 int main() {
@@ -434,15 +443,17 @@ Argon2 is **intentionally slow** - that's the point! It makes brute-force attack
 
 ## Security
 
-- **Memory-hard** - Resists GPU/ASIC attacks by requiring large RAM
-- **Time-memory trade-off resistant** - Cannot significantly speed up by using more/less memory
-- **Side-channel resistant** - Argon2i and Argon2id variants
-- **No known weaknesses** - No practical attacks as of 2025
-- **RFC 9106 standardized** - Peer-reviewed and approved
+- **Memory-hard** - Resists GPU/ASIC attacks by requiring large RAM per guess
+- **Time-memory trade-off resistant** - Parameters are chosen so attackers can't get big speedups by trading memory for time
+- **Side-channel-aware** - Argon2i and Argon2id use data-independent access patterns in their initial phase to mitigate cache/timing attacks, though implementations must still follow usual side-channel best practices
+- **Standardised** - Winner of the Password Hashing Competition; specified in RFC 9106 and subject to ongoing public cryptanalysis
+- **No practical breaks** - There are no practical attacks against Argon2id with RFC 9106–style parameters; published attacks mainly inform parameter and variant choices rather than completely breaking the function
 
-**Security level:** Depends on parameters, but properly configured Argon2 provides:
-- **Offline attack cost:** ~$1 million for 10^9 guesses with m=2 GiB
-- **Online attack:** Should combine with rate limiting (e.g., max 5 attempts per hour)
+**Security level is entirely parameter-dependent:**
+- For strong password hashing, follow RFC 9106 profiles:
+  - Argon2id, t=1, m=2 GiB, p=4 (first recommended option)
+  - Argon2id, t=3, m=64 MiB, p=4 (second option for memory-constrained systems)
+- Combine with online protections (rate limiting, lockout, 2FA). Argon2 raises the *cost per guess*; it doesn't fix weak passwords by itself.
 
 See [Security Levels Explained](/docs/guides/security-levels/) for cryptographic security fundamentals.
 
@@ -451,7 +462,7 @@ See [Security Levels Explained](/docs/guides/security-levels/) for cryptographic
 - **Per-instance:** Not thread-safe. Do not use the same `Argon2` instance from multiple threads simultaneously.
 - **Multi-instance:** Thread-safe. You can safely use different `Argon2` instances in different threads.
 - **Static methods:** Thread-safe.
-- **Parallelism parameter:** Argon2 internally uses OpenMP for parallelization.
+- **Parallelism parameter:** Argon2 internally uses OpenMP for parallelization when available.
 
 **Example (safe):**
 ```cpp
@@ -493,15 +504,15 @@ void hashPasswords(const std::vector<std::string>& passwords) {
 
 ## Test Vectors
 
-Use these to verify your Argon2 implementation:
+Use these to verify your Argon2 implementation (from RFC 9106 Section 6.5):
 
-| Variant | Password | Salt (hex) | t | m (KiB) | p | Output (first 32 bytes, hex) |
-|---------|----------|------------|---|---------|---|------------------------------|
-| Argon2id | `"password"` | `"0102030405060708090a0b0c0d0e0f10"` | 3 | 65536 | 4 | TBD - Run actual test |
-| Argon2i | `"password"` | `"0102030405060708090a0b0c0d0e0f10"` | 3 | 32 | 4 | TBD - Run actual test |
-| Argon2d | `"password"` | `"0102030405060708090a0b0c0d0e0f10"` | 3 | 32 | 4 | TBD - Run actual test |
+| Variant | Password | Salt | t | m (KiB) | p | Output (32 bytes, hex) |
+|---------|----------|------|---|---------|---|------------------------|
+| Argon2d | `0x0101...01` (32 bytes) | `0x0202...02` (16 bytes) | 3 | 32 | 4 | `512b391b6f1162975...` |
+| Argon2i | `0x0101...01` (32 bytes) | `0x0202...02` (16 bytes) | 3 | 32 | 4 | `c814d9d1dc7f37aa1...` |
+| Argon2id | `0x0101...01` (32 bytes) | `0x0202...02` (16 bytes) | 3 | 32 | 4 | `0d640df58d78766c0...` |
 
-**Note:** Official test vectors are in [RFC 9106 Section 6.5](https://www.rfc-editor.org/rfc/rfc9106.html#section-6.5).
+**Note:** The full test vectors with complete inputs/outputs are in [RFC 9106 Section 6.5](https://www.rfc-editor.org/rfc/rfc9106.html#section-6.5). The values above use m=32 KiB for quick validation; production parameters should be much higher.
 
 ## See Also
 

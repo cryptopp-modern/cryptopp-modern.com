@@ -55,7 +55,7 @@ int main() {
 - Using std::rand() or std::mt19937 for cryptography (NOT secure)
 - Sharing RNG instance across threads without synchronization
 - Manual seeding (automatic seeding is cryptographically secure)
-- Using for non-cryptographic purposes (overkill, use std::random instead)
+- Using for non-cryptographic purposes (overkill, use `<random>` e.g. `std::mt19937` instead)
 {{< /callout >}}
 
 ## Class: AutoSeededRandomPool
@@ -404,10 +404,10 @@ AutoSeededRandomPool rng(true);   // Uses /dev/random
 
 ### Security Properties
 
-- **Cryptographically secure:** Passes all statistical randomness tests
-- **Unpredictable:** Cannot predict future outputs from past outputs
-- **Forward security:** Compromise of current state doesn't reveal past outputs
-- **Backtracking resistance:** Past outputs cannot be computed from current state
+- **Cryptographically secure CSPRNG** – Designed for key/IV/salt/token generation and built on the same random-pool design used by upstream Crypto++.
+- **Unpredictable outputs** – Given current public knowledge, predicting future outputs from past outputs should be computationally infeasible for an attacker without access to the internal state.
+- **State mixing and diffusion** – New entropy is mixed into an internal pool before output is generated, helping to limit the impact of partial state exposure.
+- **OS-backed seeding** – Initial seeding (and any explicit reseeding) comes from the operating system's cryptographic RNG, rather than from user-supplied seeds.
 
 ### Security Best Practices
 
@@ -475,7 +475,7 @@ AutoSeededRandomPool rng(true);   // Uses /dev/random
 3. **Monte Carlo** - Use `std::mt19937` (faster, reproducible)
 4. **Shuffling non-sensitive data** - Use `std::shuffle` (faster)
 
-**Rule:** Use AutoSeededRandomPool if security matters, otherwise use `std::random`.
+**Rule:** Use AutoSeededRandomPool if security matters, otherwise use `<random>` (e.g. `std::mt19937`).
 
 ## RNG Comparison
 
@@ -524,15 +524,15 @@ void generateKey(byte* key, size_t len) {
 
 ## Implementation Details
 
-- **Algorithm:** AES-256 in CTR mode (internally)
-- **Seed source:** Operating system CSPRNG
-- **Reseed frequency:** Automatic when pool is exhausted
-- **State size:** ~4KB internal buffer
-- **Compliance:** Suitable for FIPS 140-2 when compiled with FIPS support
+- **Design:** AutoSeededRandomPool wraps Crypto++'s random-pool generator (a PGP-style design) and seeds it from the operating system's CSPRNG.
+- **Core primitive:** The underlying pool uses AES-256 to generate a stream of pseudo-random bytes, with entropy stirred in using SHA-256 (per upstream `RandomPool` design).
+- **Seeding:** On construction (and when `Reseed()` is called), the pool is initialised from the OS RNG (for example `/dev/urandom` on Unix-like systems or the Windows CNG/CryptoAPI RNG on Windows).
+- **Internal state:** The generator keeps an internal pool of bytes that it refills from its own cipher state; the exact size and layout of this pool are an implementation detail and may change between versions.
+- **FIPS note:** cryptopp-modern is **not** a FIPS-validated module. If you require formal FIPS 140-2/140-3 validation, you must use a separately validated cryptographic module.
 
 ## See Also
 
 - [Security Concepts](/docs/guides/security-concepts/) - Understanding random number generation
 - [SecByteBlock](/docs/api/utilities/secbyteblock/) - Secure memory for keys
 - [HKDF](/docs/api/kdf/hkdf/) - Derive keys from random seeds (coming soon)
-- All cryptographic algorithms require AutoSeededRandomPool for key generation
+- Examples on this site use `AutoSeededRandomPool` for key generation, but any suitable CSPRNG with comparable security is acceptable

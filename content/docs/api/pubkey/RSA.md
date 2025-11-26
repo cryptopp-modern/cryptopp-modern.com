@@ -60,9 +60,9 @@ int main() {
 ## Usage Guidelines
 
 {{< callout type="warning" >}}
-**RSA is legacy cryptography. Use modern alternatives when possible.**
+**RSA is an older, heavy-weight public-key scheme.** It's still widely used and secure at appropriate key sizes, but for new designs prefer Ed25519 for signatures and X25519/ECDH for key exchange.
 
-**Use RSA only for:**
+**Use RSA for:**
 - Legacy system compatibility
 - Interoperability requirements
 - Long-term signatures (when Ed25519 not supported)
@@ -143,12 +143,14 @@ void Save(BufferedTransformation& bt) const;
 void Load(BufferedTransformation& bt);
 ```
 
-Save/load private key in PKCS#8 format.
+Save/load the key in Crypto++'s native BER format.
+
+For interoperable PKCS#8 `PrivateKeyInfo` encoding, use `DEREncodePrivateKey()` / `BERDecodePrivateKey()` as described in *Keys and Formats* on the Crypto++ wiki.
 
 **Example:**
 
 ```cpp
-// Save private key
+// Save private key (native format)
 FileSink file("private.key");
 privateKey.Save(file);
 
@@ -196,7 +198,9 @@ void Save(BufferedTransformation& bt) const;
 void Load(BufferedTransformation& bt);
 ```
 
-Save/load public key in X.509 format.
+Save/load the key in Crypto++'s native BER format.
+
+For interoperable X.509 `SubjectPublicKeyInfo` encoding, use `DEREncodePublicKey()` / `BERDecodePublicKey()` as described in *Keys and Formats* on the Crypto++ wiki.
 
 ## RSA-OAEP Encryption
 
@@ -217,6 +221,17 @@ RSAES_OAEP_SHA_Decryptor(const RSA::PrivateKey& key);
 ```
 
 Decrypt data using RSA-OAEP with SHA-1.
+
+### Recommended: OAEP with SHA-256
+
+For new designs, prefer OAEP with SHA-256:
+
+```cpp
+RSAES_OAEP_SHA256_Encryptor enc(publicKey);
+RSAES_OAEP_SHA256_Decryptor dec(privateKey);
+```
+
+`RSAES_OAEP_SHA_Encryptor` / `RSAES_OAEP_SHA_Decryptor` (SHA-1) are provided for compatibility with legacy systems.
 
 ### Complete Example: Secure File Encryption
 
@@ -447,10 +462,10 @@ int main() {
 | 2024-2030 | 2048-bit | 3072-bit | 4096-bit |
 | 2030+ | 3072-bit | 4096-bit | 8192-bit |
 
-**NIST Recommendations:**
+**Approximate Security Levels (NIST SP 800-57):**
 - 2048-bit ≈ 112-bit security
 - 3072-bit ≈ 128-bit security (equivalent to AES-128)
-- 4096-bit ≈ 140-bit security
+- 4096-bit ≈ ~140-bit security (estimate; NIST only tabulates 2048, 3072, 7680, 15360)
 
 ### Security Best Practices
 
@@ -483,9 +498,11 @@ int main() {
 
 4. **Protect Private Keys:**
    ```cpp
-   // Store private keys encrypted
-   SecByteBlock key(privateKey.DEREncode());
-   // Encrypt key before saving...
+   // Serialize private key, then encrypt before storing
+   ByteQueue q;
+   privateKey.DEREncodePrivateKey(q);  // or privateKey.Save(q)
+
+   // Encrypt q's contents before writing to disk
    ```
 
 ## Maximum Message Sizes

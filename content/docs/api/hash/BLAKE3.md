@@ -5,7 +5,7 @@ weight: 1
 ---
 
 **Header:** `#include <cryptopp/blake3.h>` | **Namespace:** `CryptoPP`
-**Since:** Crypto++ 8.9
+**Since:** cryptopp-modern 2025.11.0
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 
 Fast cryptographic hash function based on Bao and BLAKE2. BLAKE3 is designed for high performance and supports parallel hashing, tree hashing, keyed hashing (MAC), and key derivation.
@@ -355,7 +355,12 @@ verifyMac.Update((const byte*)receivedMessage.data(), receivedMessage.size());
 std::string computedTag(32, '\0');
 verifyMac.TruncatedFinal((byte*)&computedTag[0], 32);
 
-if (computedTag == receivedTag) {
+// Use constant-time comparison for MACs
+if (VerifyBufsEqual(
+        reinterpret_cast<const byte*>(computedTag.data()),
+        reinterpret_cast<const byte*>(receivedTag.data()),
+        32))
+{
     std::cout << "Message is authentic!" << std::endl;
 } else {
     std::cout << "WARNING: Message has been tampered with!" << std::endl;
@@ -444,8 +449,7 @@ int main() {
 
 BLAKE3 is one of the fastest cryptographic hash functions available:
 
-- **Significantly faster than [SHA-256](/docs/api/hash/SHA256/)** - Approximately 10x faster on modern CPUs
-- **Faster than BLAKE2** - 2-3x improvement over BLAKE2b
+- **Significantly faster than [SHA-256](/docs/api/hash/SHA256/)** - Around 10× faster on modern CPUs; often ~2×+ faster than BLAKE2b
 - **Hardware acceleration** - Uses SSE4.1, AVX2, AVX-512, and NEON when available
 - **Parallelizable** - Scales with multiple cores for large inputs
 - **Constant-time** - No data-dependent branches (resistant to timing attacks)
@@ -460,16 +464,22 @@ Use `AlgorithmProvider()` to check which hardware acceleration is being used.
 
 ## Security
 
-- **256-bit collision resistance** - Computationally infeasible to find two inputs with same hash
-- **128-bit preimage resistance** - Secure against reversing the hash to find input
-- **No known weaknesses** - No practical attacks as of 2025
-- **Length extension safe** - Not vulnerable to length extension attacks (unlike SHA-256)
-- **128-bit post-quantum security** - Resistant to Grover's algorithm on quantum computers
-- **Side-channel resistant** - Constant-time implementation resists timing attacks
+**Security properties**
 
-**Security level:** Comparable to SHA-256/SHA-512 but with significantly better performance.
+- **Classical security (≥ 32-byte output):** BLAKE3 targets ~128-bit security for all standard hash goals (preimage, second-preimage, collision), as per the BLAKE3 specification.
+- **Output length:** The default 32-byte (256-bit) output is recommended for general use. Longer outputs are deterministic extensions of the same root value and *do not* increase the underlying security level beyond ~128 bits.
+- **Length-extension resistance:** Tree-based construction; not vulnerable to classic SHA-2 style length-extension attacks.
+- **Keyed mode (MAC / PRF):** With a 32-byte secret key, BLAKE3 behaves as a secure PRF/MAC with ~128-bit security, and can act as a drop-in replacement for many HMAC-SHA-256 uses.
+- **KDF mode:** With a fixed, application-specific context string and high-entropy key material, BLAKE3 provides a secure KDF for deriving multiple, domain-separated keys.
+- **Side-channel behaviour:** The compression function is designed without secret-dependent branches or table lookups, and the cryptopp-modern implementation aims to be constant-time for secret inputs (subject to usual platform and compiler caveats).
 
-See [Security Levels Explained](/docs/guides/security-levels/) for details on what these numbers mean.
+**Security notes**
+
+- Use at least 32 bytes of output for cryptographic purposes. Shorter digests (e.g. 16 bytes) are fine for non-critical identifiers but reduce the security margin.
+- BLAKE3's *classical* security level is ~128 bits. Under generic quantum attacks (e.g. Grover's algorithm), effective preimage security is roughly ~64 bits, so treat it like any other 128-bit symmetric primitive in post-quantum planning.
+- Do **not** use BLAKE3 directly for password hashing or deriving keys from low-entropy passwords. Use Argon2 for password hashing, and treat BLAKE3 KDF as a fast, follow-on KDF once you already have high-entropy key material.
+- In keyed mode, treat BLAKE3 as a MAC/PRF, not as a digital signature. Use Ed25519/RSA/etc. where you need non-repudiation.
+- When deriving multiple keys from the same input (e.g. encryption key + MAC key), always use distinct, fixed context strings to enforce domain separation between outputs.
 
 ## Thread Safety
 

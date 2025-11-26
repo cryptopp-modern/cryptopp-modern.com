@@ -416,25 +416,54 @@ Approximate speeds on modern hardware with AES-NI:
 
 ## Security
 
-### Security Properties
+### Quick Summary
 
-- **Confidentiality:** 128-bit (AES-128) or 256-bit (AES-256)
-- **Authenticity:** 128-bit MAC (prevents tampering)
-- **Nonce requirement:** Must never reuse IV with same key
-- **Standard:** NIST SP 800-38D, FIPS 197
+| Aspect | Recommendation | Why it matters |
+|--------|----------------|----------------|
+| Key size | AES-128 or AES-256 | 128- or 256-bit confidentiality |
+| IV / nonce | 12-byte unique IV per encryption | Reuse with same key is catastrophic |
+| Tag length | 128-bit tag (16 bytes) | Strong integrity / authenticity margin |
+| Key lifetime | Re-key well before ~2³² encryptions | Keeps IV-collision risk and forgery low |
 
-### Important Security Notes
+**Practical rules of thumb:**
 
-1. **IV Reuse is Catastrophic:** Reusing an IV with the same key completely breaks GCM security. Always generate random IVs.
+- Generate a **random 12-byte IV** for every encryption under a given key; never reuse the same `(key, IV)` pair.
+- Always use and verify the **authentication tag**; treat any verification failure as a hard error and discard the ciphertext.
+- Prefer a **128-bit tag**; only truncate if you really need to, and understand that shorter tags reduce forgery resistance.
+- For high-volume or long-lived keys, **rotate keys periodically** (e.g., on a message or data-volume budget well below ~2³² encryptions per key).
 
-2. **Authentication is Critical:** Always verify the authentication tag. A failed verification means the data has been tampered with.
+{{< details title="Detailed Security Properties" >}}
 
-3. **Key Management:** Store keys securely using `SecByteBlock` which zeroes memory on destruction.
+**Security Bounds**
 
-4. **IV Management:**
-   - Use 12-byte (96-bit) IVs for best performance
-   - Generate IVs using `AutoSeededRandomPool`
-   - Store IV alongside ciphertext (IV doesn't need to be secret)
+| Property | Bound | Notes |
+|----------|-------|-------|
+| **Confidentiality** | 128 / 192 / 256-bit | Depends on AES key size |
+| **Authenticity** | Up to 2^(t) | t = tag length in bits (max 128) |
+| **Forgery probability** | ≤ 2^−t per attempt | Full 128-bit tag recommended |
+| **IV collision (random IV)** | ≈ 2^−32 after 2^32 encryptions | Birthday bound on 96-bit IV |
+| **Standard** | NIST SP 800-38D, FIPS 197 | |
+
+**Security Best Practices**
+
+- **Never reuse an IV with the same key** – reuse leaks the XOR of plaintexts and enables forgery
+- **Use 12-byte (96-bit) IVs** – other lengths require an extra GHASH which is slower and has a tighter security bound
+- **Verify the tag before using plaintext** – `AuthenticatedDecryptionFilter` does this; if you use low-level APIs, check the return value
+- **Re-key before 2^32 encryptions** with random IVs (NIST SP 800-38D guidance) to keep IV-collision probability negligible
+- **Store keys in `SecByteBlock`** – memory is auto-zeroed on destruction
+
+**IV Selection**
+
+IVs must be **unique**, not necessarily random. Two safe approaches:
+1. **Random IV** – generate 12 random bytes per message; limit to ~2^32 messages per key
+2. **Counter IV** – deterministic counter (e.g., 64-bit counter + 32-bit fixed field); no birthday limit but requires state
+
+**Replay & Side-Channel Notes**
+
+- GCM authentication is **not replay-resistant** – use sequence numbers or timestamps at the protocol layer
+- Crypto++ uses **constant-time GHASH** on platforms with carry-less multiply; on others it may be vulnerable to timing attacks on the tag computation
+
+{{< /details >}}
 
 ### Test Vectors (NIST SP 800-38D)
 

@@ -1,0 +1,2 @@
+# Preserve trailing whitespace in markdown (used for line breaks)
+*.md -whitespace

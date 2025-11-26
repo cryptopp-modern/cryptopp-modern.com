@@ -34,7 +34,7 @@ int main() {
     enc.SetKeyWithIV(key, key.size(), nonce, sizeof(nonce));
 
     std::string plaintext = "Secret message";
-    std::string ciphertext, tag;
+    std::string ciphertext;  // Tag is appended to ciphertext by AuthenticatedEncryptionFilter
 
     AuthenticatedEncryptionFilter ef(enc,
         new StringSink(ciphertext),
@@ -69,14 +69,14 @@ int main() {
 {{< callout type="info" >}}
 **Do:**
 - Use ChaCha20-Poly1305 on systems without AES-NI hardware
-- Use when constant-time operation is critical (no timing side-channels)
+- Use when constant-time operation is important (ChaCha20-Poly1305 is designed for simple, constant-time software implementations)
 - Use 96-bit (12-byte) nonces
 - Generate random nonces for each message (or use counters)
 - Include associated data (AAD) for metadata authentication
 
 **Avoid:**
 - Reusing nonces with the same key (catastrophic security failure)
-- Using on systems with AES-NI (AES-GCM will be faster)
+- Generally avoid on systems with AES-NI if maximum throughput is your primary goal (AES-GCM will usually be faster)
 - Nonces smaller than 96 bits
 {{< /callout >}}
 
@@ -368,7 +368,6 @@ void decryptFile(const std::string& inputFile,
                  const SecByteBlock& key) {
     // Read nonce from input file
     byte nonce[12];
-    FileSource(inputFile.c_str(), false);
     FileSource inFile(inputFile.c_str(), false);
     inFile.Pump(sizeof(nonce));
     inFile.Get(nonce, sizeof(nonce));
@@ -430,7 +429,24 @@ int main() {
 
 ## Security
 
-### Security Properties
+### Quick Summary
+
+| Aspect | Recommendation | Why it matters |
+|--------|----------------|----------------|
+| Key size | 256-bit (32 bytes) only | Full ChaCha20 security level |
+| Nonce | 12-byte unique nonce per encryption | Reuse with same key is catastrophic |
+| Tag length | 128-bit tag (16 bytes) | Strong integrity / authenticity margin |
+| Key lifetime | Re-key well before ~2³² encryptions | Keeps nonce-collision risk negligible |
+
+**Practical rules of thumb:**
+
+- Generate a **random 12-byte nonce** for every encryption under a given key; never reuse the same `(key, nonce)` pair.
+- Always use and verify the **authentication tag**; treat any verification failure as a hard error and discard the ciphertext.
+- For high-volume or long-lived keys, **rotate keys periodically** (e.g., well below ~2³² encryptions per key), or use XChaCha20-Poly1305 for its larger nonce space.
+
+{{< details title="Detailed Security Properties" >}}
+
+**Algorithm Details**
 
 - **Encryption:** ChaCha20 stream cipher (256-bit key)
 - **Authentication:** Poly1305 MAC (128-bit tag)
@@ -438,6 +454,8 @@ int main() {
 - **Key size:** 256 bits (32 bytes) only
 - **Tag size:** 128 bits (16 bytes)
 - **Standard:** RFC 8439 (IETF)
+
+{{< /details >}}
 
 ### Nonce Management
 
@@ -474,9 +492,9 @@ byte nonce[12] = {0};  // Same nonce!
 ### Security Best Practices
 
 1. **Never Reuse Nonces:**
-   - Use random nonces from CSPRNG
-   - Or use counters (never repeat)
-   - 96-bit nonces provide ~2^48 messages before birthday bound
+   - Use random 96-bit nonces from a CSPRNG, or a well-designed counter scheme
+   - With random 96-bit nonces, after about 2³² encryptions under one key there is already a ~2⁻³² chance of a collision
+   - Plan to **re-key well before** you approach that scale, or consider XChaCha20-Poly1305 for very high message counts
 
 2. **Authenticate-then-Decrypt:**
    ```cpp

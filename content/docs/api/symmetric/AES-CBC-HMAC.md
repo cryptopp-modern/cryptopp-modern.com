@@ -63,17 +63,25 @@ int main() {
     std::cout << "Encrypted " << plaintext.size() << " bytes" << std::endl;
     std::cout << "MAC size: " << mac.size() << " bytes" << std::endl;
 
-    // Verify HMAC before decrypting
-    std::string verifyMac;
+    // In a real protocol, 'receivedMac' would come from the peer
+    std::string receivedMac = mac;
+
+    // Verify HMAC (constant-time) before decrypting
+    std::string computedMac;
     HMAC<SHA256> hmacVerify(hmacKey, hmacKey.size());
 
     StringSource(std::string((char*)iv, sizeof(iv)) + ciphertext, true,
         new HashFilter(hmacVerify,
-            new StringSink(verifyMac)
+            new StringSink(computedMac)
         )
     );
 
-    if (mac != verifyMac) {
+    // Use constant-time comparison for MACs
+    if (!VerifyBufsEqual(
+            reinterpret_cast<const byte*>(receivedMac.data()),
+            reinterpret_cast<const byte*>(computedMac.data()),
+            SHA256::DIGESTSIZE))
+    {
         std::cerr << "Authentication failed!" << std::endl;
         return 1;
     }
@@ -151,9 +159,11 @@ public:
     AES_CBC_HMAC(const SecByteBlock& aesKey,
                  const SecByteBlock& hmacKey)
         : m_aesKey(aesKey), m_hmacKey(hmacKey) {
+        // This example uses AES-128; adapt check for 192/256-bit keys if needed
         if (aesKey.size() != AES::DEFAULT_KEYLENGTH) {
             throw std::invalid_argument("AES key must be 16 bytes");
         }
+        // HMAC key of 32 bytes is a good default; other sizes work too
         if (hmacKey.size() != SHA256::DIGESTSIZE) {
             throw std::invalid_argument("HMAC key must be 32 bytes");
         }
@@ -468,14 +478,34 @@ SecByteBlock hmacKey(SHA512::DIGESTSIZE);  // 64 bytes
 
 ## Security
 
-### Security Properties
+### Quick Summary
+
+| Aspect | Recommendation | Why it matters |
+|--------|----------------|----------------|
+| Construction | Encrypt-then-MAC only | MAC-then-Encrypt is vulnerable to padding oracles |
+| IV | Random 16-byte IV per encryption | Predictable IVs break CBC confidentiality |
+| Keys | Separate AES and HMAC keys | Reusing keys weakens security properties |
+| Verification | HMAC check before decryption | Prevents padding oracle attacks |
+
+**Practical rules of thumb:**
+
+- Generate a **random 16-byte IV** for every encryption; CBC requires unpredictable IVs (not just unique).
+- **Always verify HMAC before decrypting** – never expose padding errors to attackers.
+- Use **separate keys** for AES and HMAC; derive both from a master key using HKDF if needed.
+- For new applications, **prefer AES-GCM or ChaCha20-Poly1305** – they're faster, simpler, and avoid padding oracle risks entirely.
+
+{{< details title="Detailed Security Properties" >}}
+
+**Algorithm Details**
 
 - **Encryption:** AES-CBC (128/192/256-bit keys)
 - **Authentication:** HMAC-SHA256/SHA512
 - **IV size:** 128 bits (16 bytes)
 - **MAC size:** 256 bits (32 bytes) or 512 bits (64 bytes)
 - **Construction:** Encrypt-then-MAC
-- **Standard:** NIST, widely used in TLS 1.2
+- **Standard:** NIST-approved primitives, historically used in TLS 1.2 CBC cipher suites
+
+{{< /details >}}
 
 ### IV Management
 

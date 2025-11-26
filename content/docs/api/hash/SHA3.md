@@ -47,7 +47,7 @@ int main() {
 **Do:**
 - Use SHA-3 for algorithmic diversity (backup to SHA-2)
 - Use when NIST/FIPS compliance specifically requires SHA-3
-- Use for new protocols wanting post-quantum preparation
+- Use for new protocols when you want algorithmic diversity alongside SHA-2, including in post-quantum planning (different design, similar security levels)
 - Use extendable output functions (SHAKE128/SHAKE256) when needed
 
 **Avoid:**
@@ -192,12 +192,12 @@ int main() {
 | SHA-256 (SHA-NI) | 800-1500 | Hardware accelerated |
 | SHA-512 | 600-1200 | Fast on 64-bit |
 | **SHA3-256** | 300-600 | Software only |
-| SHA3-512 | 400-800 | Faster than SHA3-256 |
+| SHA3-512 | 200-400 | Lower rate than SHA3-256 |
 
 **Key Points:**
 - SHA-3 is slower than SHA-2 and BLAKE3
 - No widespread hardware acceleration (yet)
-- SHA3-512 is faster than SHA3-256 (wider internal state)
+- SHA3-256 is generally faster than SHA3-512 for long messages (higher rate: 1088 bits vs 576 bits)
 - Trade speed for algorithmic diversity
 
 ## Security
@@ -287,7 +287,7 @@ Keccak_256 keccak;  // Domain separation: 0x01
 1. **Algorithmic Diversity** - Backup to SHA-2 family
 2. **Compliance** - FIPS 202 requirements
 3. **New Protocols** - Future-proofing
-4. **Post-Quantum** - Different structure from SHA-2
+4. **Cryptographic Portfolio / PQ Planning** - Different structure from SHA-2, useful as a second independent hash family
 5. **Research** - Academic projects
 
 ### ❌ Don't use SHA-3 for:
