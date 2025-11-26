@@ -320,8 +320,7 @@ Instead of separate encryption + MAC, use authenticated encryption:
 
 ## See Also
 
-- [Message Authentication Guide](/docs/algorithms/mac/) - Conceptual overview
-- [HMAC Guide](/docs/algorithms/hmac/) - HMAC deep dive
+- [Hash Functions Guide](/docs/algorithms/hashing/) - Hash and HMAC overview
 - [AES-GCM](/docs/api/symmetric/aes-gcm/) - Authenticated encryption
 - [Security Concepts](/docs/guides/security-concepts/) - MAC vs signature vs hash
 - [Argon2](/docs/api/kdf/argon2/) - Password hashing (not MAC)

@@ -594,7 +594,6 @@ void threadFunc() {
 
 ## See Also
 
-- [AES-GCM Guide](/docs/algorithms/aes-gcm/) - Conceptual overview
-- [Symmetric Encryption Overview](/docs/guides/symmetric-encryption/) - Choosing encryption algorithms
+- [Symmetric Encryption Guide](/docs/algorithms/symmetric/) - Conceptual overview
 - [Security Concepts](/docs/guides/security-concepts/) - Understanding cryptographic security
 - [ChaCha20-Poly1305](/docs/api/symmetric/chacha20-poly1305/) - Alternative authenticated cipher

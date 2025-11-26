@@ -312,7 +312,7 @@ void thread2() { global_kex.Agree(...); }
 
 ## See Also
 
-- [X25519 Guide](/docs/algorithms/x25519/) - Detailed key exchange guide
+- [X25519 API](/docs/api/pubkey/x25519/) - Key exchange API reference
 - [Ed25519 API](/docs/api/pubkey/ed25519/) - Digital signatures API reference
 - [Public-Key Cryptography Guide](/docs/algorithms/public-key/) - Conceptual overview
 - [Security Concepts](/docs/guides/security-concepts/) - Understanding public-key cryptography
