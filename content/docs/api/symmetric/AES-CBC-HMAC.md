@@ -7,7 +7,7 @@ weight: 3
 **Header:** `#include <cryptopp/aes.h>`, `#include <cryptopp/modes.h>`,  
 and `#include <cryptopp/hmac.h>`
 **Namespace:** `CryptoPP`  
-**Since:** Crypto++ 3.1 (AES), 4.0 (CBC), 5.0 (HMAC)
+**Since:** Crypto++ 3.1 (AES), 4.0 (CBC), 5.0 (HMAC)  
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 
 AES-CBC (Cipher Block Chaining) with HMAC provides authenticated encryption using the Encrypt-then-MAC construction. While modern applications should prefer AES-GCM or ChaCha20-Poly1305, CBC+HMAC remains important for legacy systems and standards compliance.
