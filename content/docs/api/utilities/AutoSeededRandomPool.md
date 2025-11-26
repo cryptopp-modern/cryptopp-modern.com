@@ -534,5 +534,5 @@ void generateKey(byte* key, size_t len) {
 
 - [Security Concepts](/docs/guides/security-concepts/) - Understanding random number generation
 - [SecByteBlock](/docs/api/utilities/secbyteblock/) - Secure memory for keys
-- [HKDF](/docs/api/kdf/hkdf/) - Derive keys from random seeds (coming soon)
+- [HKDF](/docs/api/kdf/hkdf/) - Derive keys from random seeds
 - Examples on this site use `AutoSeededRandomPool` for key generation, but any suitable CSPRNG with comparable security is acceptable

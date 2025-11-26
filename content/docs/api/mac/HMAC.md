@@ -782,4 +782,4 @@ void threadFunc() {
 - [Message Authentication](/docs/api/mac/) - Other MAC algorithms
 - [AES-GCM](/docs/api/symmetric/aes-gcm/) - Authenticated encryption (better than HMAC + encryption)
 - [Security Concepts](/docs/guides/security-concepts/) - Understanding MACs vs signatures
-- [HKDF](/docs/api/kdf/hkdf/) - Key derivation using HMAC (coming soon)
+- [HKDF](/docs/api/kdf/hkdf/) - Key derivation using HMAC
