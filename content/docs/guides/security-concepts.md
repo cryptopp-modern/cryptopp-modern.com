@@ -1218,6 +1218,8 @@ A **compression oracle** attack exploits the fact that compression algorithms pr
 
 ...they can learn information about the secret by measuring how well their injected data compresses with it.
 
+In practice, the attacker sends many **adaptive** requests: they tweak their injected data based on previous responses, and watch how the compressed size changes to home in on the secret character by character.
+
 ### Famous Attacks
 
 - **CRIME** (2012) - Attacked TLS compression, recovered session cookies
@@ -1263,11 +1265,12 @@ void sendEncrypted(const std::string& userInput,
     );
     compressor.MessageEnd();
 
-    // Step 2: Encrypt
+    // Step 2: Encrypt (cipher choice doesn't matter - AES, ChaCha20, etc.)
     std::string ciphertext;
     // ... encryption ...
 
     // Attacker observes ciphertext.size() and learns about secretToken!
+    // The leak comes from the compressed length, not from the cipher itself.
 }
 ```
 
@@ -1329,12 +1332,12 @@ void safeSeparate(const std::string& userInput,
 }
 ```
 
-#### Pattern 3: Pad to Fixed Size
+#### Pattern 3: Pad to Fixed Size (Mitigation)
 
 ```cpp
-// ✅ SAFE: Hide compression ratio with padding
-void safePadded(const std::string& data,
-                const CryptoPP::SecByteBlock& key) {
+// ⚠️ MITIGATION: Reduce information leakage with padding
+void paddedEncrypt(const std::string& data,
+                   const CryptoPP::SecByteBlock& key) {
     // Compress
     std::string compressed;
     CryptoPP::ZlibCompressor compressor(
@@ -1350,12 +1353,14 @@ void safePadded(const std::string& data,
     size_t paddedSize = ((compressed.size() / BLOCK_SIZE) + 1) * BLOCK_SIZE;
     compressed.resize(paddedSize, '\0');
 
-    // Encrypt - all outputs are multiple of 4KB
+    // Encrypt - outputs fall into coarse size buckets (4KB, 8KB, …)
     std::string ciphertext = encrypt(compressed, key);
 
-    // Attacker sees same size for many different inputs
+    // Attacker can still see which bucket you're in, but not fine-grained differences
 }
 ```
+
+Padding to coarse size buckets **reduces** how much information the attacker gets (they only see which size bucket you're in, not the exact compressed length). If crossing a bucket boundary is rare, this can be good enough in practice - but if you need strong guarantees, don't compress at all when secrets and attacker-controlled data share a channel.
 
 #### Pattern 4: Don't Compress at All
 
