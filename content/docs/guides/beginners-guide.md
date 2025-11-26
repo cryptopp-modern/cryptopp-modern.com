@@ -692,7 +692,9 @@ public:
         return hex;
     }
 
-    // Generate random integer
+    // Generate random integer in range [min, max]
+    // Note: modulo has slight bias unless (max-min+1) divides 2^32.
+    // Fine for tokens/IDs; for high-assurance work, use rejection sampling.
     unsigned int generateInt(unsigned int min, unsigned int max) {
         unsigned int value;
         prng.GenerateBlock((CryptoPP::byte*)&value, sizeof(value));
