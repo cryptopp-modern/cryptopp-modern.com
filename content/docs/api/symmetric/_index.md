@@ -54,6 +54,13 @@ Stream cipher
 - Fast in software
 - No timing side channels
 
+### [Twofish](/docs/api/symmetric/twofish/)
+AES finalist block cipher
+- 128-bit block size
+- Key sizes: 128, 192, 256 bits
+- No known attacks
+- Alternative to AES
+
 ## Block Cipher Modes
 
 **Warning:** Most modes don't provide authentication. Use GCM or CCM instead.
