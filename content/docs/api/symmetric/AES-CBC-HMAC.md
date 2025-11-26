@@ -4,8 +4,9 @@ description: AES-CBC mode with HMAC authentication (Encrypt-then-MAC)
 weight: 3
 ---
 
-**Header:** `#include <cryptopp/aes.h>`, `#include <cryptopp/modes.h>`, and `#include <cryptopp/hmac.h>`
-**Namespace:** `CryptoPP`
+**Header:** `#include <cryptopp/aes.h>`, `#include <cryptopp/modes.h>`,  
+and `#include <cryptopp/hmac.h>`
+**Namespace:** `CryptoPP`  
 **Since:** Crypto++ 3.1 (AES), 4.0 (CBC), 5.0 (HMAC)
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 
