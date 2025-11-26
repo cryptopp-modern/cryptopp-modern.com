@@ -3,7 +3,12 @@ title: Compression (Zlib, Gzip, Deflate)
 description: API reference for compression and decompression using Zlib, Gzip, and Deflate algorithms in cryptopp-modern
 ---
 
-**Header:** `<cryptopp/zlib.h>`, `<cryptopp/gzip.h>`, `<cryptopp/zinflate.h>` | **Namespace:** `CryptoPP`
+**Headers:**
+- `<cryptopp/zlib.h>` - ZlibCompressor, ZlibDecompressor
+- `<cryptopp/gzip.h>` - Gzip, Gunzip
+- `<cryptopp/zdeflate.h>`, `<cryptopp/zinflate.h>` - Deflator, Inflator (raw DEFLATE)
+
+**Namespace:** `CryptoPP`
 
 **Since:** Crypto++ 1.0 | **Thread Safety:** Not thread-safe (use per-thread instances)
 
@@ -20,25 +25,23 @@ int main() {
                            "Repetitive content compresses well well well well.";
     std::string compressed, decompressed;
 
-    // Compress
-    CryptoPP::ZlibCompressor compressor;
+    // Compress (compressor is a filter, use directly in pipeline)
     CryptoPP::StringSource ss1(original, true,
-        new CryptoPP::StreamTransformationFilter(compressor,
+        new CryptoPP::ZlibCompressor(
             new CryptoPP::StringSink(compressed)
         )
     );
 
     // Decompress
-    CryptoPP::ZlibDecompressor decompressor;
     CryptoPP::StringSource ss2(compressed, true,
-        new CryptoPP::StreamTransformationFilter(decompressor,
+        new CryptoPP::ZlibDecompressor(
             new CryptoPP::StringSink(decompressed)
         )
     );
 
-    std::cout << "Original size: " << original.size() << std::endl;
-    std::cout << "Compressed size: " << compressed.size() << std::endl;
-    std::cout << "Match: " << (original == decompressed ? "YES" : "NO") << std::endl;
+    std::cout << "Original size: " << original.size() << '\n';
+    std::cout << "Compressed size: " << compressed.size() << '\n';
+    std::cout << "Match: " << (original == decompressed ? "YES" : "NO") << '\n';
 
     return 0;
 }
@@ -68,6 +71,8 @@ This enables **CRIME/BREACH-style attacks** where attackers can recover secrets 
 | `ZlibCompressor` / `ZlibDecompressor` | Zlib (RFC 1950) | General purpose, includes header/checksum |
 | `Gzip` / `Gunzip` | Gzip (RFC 1952) | File compression, HTTP Content-Encoding |
 | `Deflator` / `Inflator` | Raw Deflate (RFC 1951) | Custom formats, minimal overhead |
+
+All three use the same **DEFLATE** compression algorithm; they differ only in wrapping format (headers, checksums, metadata).
 
 ## ZlibCompressor / ZlibDecompressor
 
@@ -441,6 +446,8 @@ std::string encryptRequest(const std::string& userInput,
 3. If "A" produces smaller output, the secret token likely starts with "A"
 4. Repeat for each character position to recover entire token
 
+**Key takeaway:** If attacker-controlled input and secrets share a compressed-and-encrypted channel where the attacker can observe lengths, treat that as unsafe by default (CRIME/BREACH-style risk).
+
 ## Performance
 
 ### Compression Speed (approximate)
@@ -450,6 +457,8 @@ std::string encryptRequest(const std::string& userInput,
 | 1 | ~200 MB/s | Real-time streaming |
 | 6 | ~50 MB/s | General purpose |
 | 9 | ~10 MB/s | Archival, one-time compression |
+
+*Actual performance depends heavily on CPU, compiler, and data characteristics; treat these numbers as rough order-of-magnitude figures.*
 
 ### Memory Usage
 
