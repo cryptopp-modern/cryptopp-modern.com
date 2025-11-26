@@ -42,30 +42,39 @@ A cryptographic algorithm's **security level** (in bits) represents the computat
 
 ## Hash Function Security
 
-Hash functions provide **two types** of security:
+For an ideal n-bit hash function, there are three key security properties:
 
-### **Collision Resistance**
+### **Preimage Resistance (~n-bit)**
 
-**Definition:** How hard it is to find two different inputs that hash to the same output.
+**Definition:** Given a hash output H, how hard is it to find any input M such that `hash(M) = H`.
 
-**Security level:** For an n-bit hash, collision resistance is n-bit (e.g., SHA-256 provides 256-bit collision resistance).
+**Security level:** For an n-bit hash, preimage resistance requires about **2ⁿ work**.
 
-**Why it matters:** Needed for digital signatures, certificates, and integrity checking.
+**Why it matters:** Prevents reversing hashes to recover original data (e.g., password hashes).
 
-### **Preimage Resistance**
+### **Second-Preimage Resistance (~n-bit)**
 
-**Definition:** How hard it is to find an input that hashes to a specific output.
+**Definition:** Given a specific message M, how hard is it to find a different message M′ with the same hash.
 
-**Security level:** For an n-bit hash, preimage resistance is typically n/2-bit due to birthday attack.
+**Security level:** For an n-bit hash, second-preimage resistance requires about **2ⁿ work**.
 
-**Why it matters:** Prevents reversing hashes to recover original data.
+**Why it matters:** Prevents substituting one document for another with the same hash.
+
+### **Collision Resistance (~n/2-bit)**
+
+**Definition:** How hard is it to find *any* two different inputs that hash to the same output.
+
+**Security level:** For an n-bit hash, collision resistance requires about **2ⁿ⁄² work** due to the birthday bound.
+
+**Why it matters:** Needed for digital signatures, certificates, and Merkle trees where an attacker can choose both inputs.
 
 ### Example: SHA-256
 
-- **Collision resistance:** 256-bit security
-- **Preimage resistance:** 128-bit security (birthday paradox)
+- **Preimage resistance:** ~256-bit security (2²⁵⁶ work)
+- **Second-preimage resistance:** ~256-bit security (2²⁵⁶ work)
+- **Collision resistance:** ~128-bit security (2¹²⁸ work, birthday bound)
 
-This is why SHA-256 is considered "128-bit secure" for most practical purposes.
+For many protocol designs where collision resistance is the limiting factor (signatures over hashes, Merkle trees), SHA-256 is therefore treated as providing **~128-bit security**.
 
 ## Post-Quantum Security
 
@@ -97,11 +106,11 @@ Symmetric encryption, hash functions, and public-key cryptography have different
 
 ### Hash Functions (SHA-256, BLAKE3)
 
-**Collision resistance = output size**
-**Preimage resistance = output size / 2**
+**Preimage resistance = output size (n-bit)**
+**Collision resistance = output size / 2 (n/2-bit, birthday bound)**
 
-- SHA-256: 256-bit collision, 128-bit preimage
-- BLAKE3: 256-bit collision, 128-bit preimage
+- SHA-256: 256-bit preimage, 128-bit collision
+- BLAKE3: 256-bit preimage, 128-bit collision
 
 ### Public-Key Cryptography
 

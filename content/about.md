@@ -50,7 +50,7 @@ Version 2025.12.0 reorganizes 204+ source files into categorized directories (co
 
 ### Security Enhancements
 
-- Security patches including fixes for CVE-2022-4304 (Marvin attack)
+- Security patches including fixes for CVE-2023-50979 (Marvin attack)
 - ESIGN improvements
 - Regular security audits and updates
 
