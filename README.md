@@ -6,6 +6,53 @@ Official documentation website for [cryptopp-modern](https://github.com/cryptopp
 
 This repository contains the Hugo source for the cryptopp-modern documentation site hosted at https://cryptopp-modern.com
 
+## Documentation Coverage
+
+### API Reference
+
+#### Symmetric Encryption
+- [AES-GCM](/content/docs/api/symmetric/AES-GCM.md) - Authenticated encryption (recommended)
+- [ChaCha20-Poly1305](/content/docs/api/symmetric/ChaCha20-Poly1305.md) - Modern AEAD cipher
+- [XChaCha20-Poly1305](/content/docs/api/symmetric/XChaCha20-Poly1305.md) - Extended nonce AEAD
+- [AES-CBC](/content/docs/api/symmetric/AES-CBC.md) - Block cipher mode
+- [AES-CBC-HMAC](/content/docs/api/symmetric/AES-CBC-HMAC.md) - Authenticated CBC
+- [AES-CTR](/content/docs/api/symmetric/AES-CTR.md) - Counter mode
+- [Twofish](/content/docs/api/symmetric/Twofish.md) - AES finalist cipher
+
+#### Hash Functions
+- [BLAKE3](/content/docs/api/hash/BLAKE3.md) - Fastest modern hash
+- [BLAKE2](/content/docs/api/hash/BLAKE2.md) - High-speed hash (RFC 7693)
+- [SHA-256](/content/docs/api/hash/SHA256.md) - Standard hash
+- [SHA-512](/content/docs/api/hash/SHA512.md) - 512-bit hash
+- [SHA-3](/content/docs/api/hash/SHA3.md) - Keccak-based hash
+- [SHA-1](/content/docs/api/hash/SHA1.md) - Legacy (deprecated)
+- [MD5](/content/docs/api/hash/MD5.md) - Legacy (broken)
+
+#### Key Derivation & Password Hashing
+- [Argon2](/content/docs/api/kdf/Argon2.md) - Password hashing (recommended)
+- [scrypt](/content/docs/api/kdf/scrypt.md) - Memory-hard KDF
+- [HKDF](/content/docs/api/kdf/HKDF.md) - Key derivation from secrets
+- [PBKDF2](/content/docs/api/kdf/PBKDF2.md) - Legacy password KDF
+
+#### Public-Key Cryptography
+- [X25519](/content/docs/api/pubkey/X25519.md) - Key exchange (recommended)
+- [Ed25519](/content/docs/api/pubkey/Ed25519.md) - Digital signatures
+- [ECDSA](/content/docs/api/pubkey/ECDSA.md) - Elliptic curve signatures
+- [ECDH](/content/docs/api/pubkey/ECDH.md) - Elliptic curve key exchange
+- [RSA](/content/docs/api/pubkey/RSA.md) - Traditional public-key
+
+#### Message Authentication
+- [HMAC](/content/docs/api/mac/HMAC.md) - Hash-based MAC
+
+#### Utilities
+- [AutoSeededRandomPool](/content/docs/api/utilities/AutoSeededRandomPool.md) - Secure RNG
+- [SecByteBlock](/content/docs/api/utilities/SecByteBlock.md) - Secure memory
+- [HexEncoder](/content/docs/api/utilities/HexEncoder.md) - Hex encoding
+- [Base64Encoder](/content/docs/api/utilities/Base64Encoder.md) - Base64 encoding
+- [Integer](/content/docs/api/utilities/Integer.md) - Big integer arithmetic
+- [AuthenticatedEncryptionFilter](/content/docs/api/utilities/AuthenticatedEncryptionFilter.md) - AEAD pipeline
+- [Redirector](/content/docs/api/utilities/Redirector.md) - Pipeline routing
+
 ## Local Development
 
 ### Prerequisites
