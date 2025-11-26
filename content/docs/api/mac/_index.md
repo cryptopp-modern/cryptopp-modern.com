@@ -25,23 +25,17 @@ Hash-based Message Authentication Code
 - Message authentication
 - General-purpose MAC needs
 
-### CMAC (coming soon)
+### [CMAC](/docs/api/mac/cmac/)
 Cipher-based Message Authentication Code
 - Uses block ciphers (AES-CMAC)
 - NIST SP 800-38B standardized
 - Good alternative to HMAC
 
-### Poly1305 (coming soon)
+### [Poly1305](/docs/api/mac/poly1305/)
 Universal hash function MAC
 - Very fast (designed for speed)
 - Used in ChaCha20-Poly1305
-- 128-bit security
-
-### GMAC (coming soon)
-Galois Message Authentication Code
-- MAC component of GCM mode
-- Hardware accelerated
-- Usually used with AES-GCM
+- 128-bit security (one-time key)
 
 ## Quick Comparison
 

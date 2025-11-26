@@ -51,35 +51,35 @@ Convert binary data to/from Base64
 
 ## Data Transformation
 
-### StringSource / StringSink (coming soon)
+### [StringSource / StringSink](/docs/api/utilities/stringsource/)
 Input/output from std::string
 - Source: Read from string
 - Sink: Write to string
 - Used with filters and pipelines
 
-### FileSource / FileSink (coming soon)
+### [FileSource / FileSink](/docs/api/utilities/filesource/)
 Input/output from files
 - Stream file data through crypto operations
 - Memory-efficient for large files
 
-### ArraySource / ArraySink (coming soon)
+### [ArraySource / ArraySink](/docs/api/utilities/arraysource/)
 Input/output from byte arrays
 - Work with C-style arrays
 - Zero-copy operations
 
 ## Filters & Pipelines
 
-### HashFilter (coming soon)
+### [HashFilter](/docs/api/utilities/hashfilter/)
 Compute hash through pipeline
 - Combine with sources and sinks
 - Stream data through hash functions
 
-### SignerFilter / VerifierFilter (coming soon)
+### [SignerFilter / VerifierFilter](/docs/api/utilities/signerfilter/)
 Sign and verify through pipeline
 - Stream signature generation
 - Stream signature verification
 
-### StreamTransformationFilter (coming soon)
+### [StreamTransformationFilter](/docs/api/utilities/streamtransformationfilter/)
 Apply encryption/decryption
 - Encrypt/decrypt streams
 - Handle padding automatically

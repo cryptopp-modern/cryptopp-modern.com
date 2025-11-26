@@ -43,8 +43,8 @@ Asymmetric cryptography for signatures and key exchange.
 Message Authentication Codes (MACs) for data authenticity.
 
 - [HMAC](/docs/api/mac/hmac/) - Hash-based MAC (recommended for most use cases)
-- CMAC (coming soon)
-- Poly1305 (coming soon)
+- [CMAC](/docs/api/mac/cmac/) - Cipher-based MAC using AES
+- [Poly1305](/docs/api/mac/poly1305/) - High-speed one-time MAC
 
 ## Utilities
 
@@ -54,6 +54,17 @@ Essential utilities for cryptographic operations.
 - [SecByteBlock](/docs/api/utilities/secbyteblock/) - Secure memory for keys (essential)
 - [HexEncoder](/docs/api/utilities/hexencoder/) - Hexadecimal encoding and decoding
 - [Base64Encoder](/docs/api/utilities/base64encoder/) - Base64 and Base64URL encoding
+
+## Pipeline & Filters
+
+Data transformation pipeline for streaming operations.
+
+- [StringSource / StringSink](/docs/api/utilities/stringsource/) - String-based I/O
+- [FileSource / FileSink](/docs/api/utilities/filesource/) - File-based I/O
+- [ArraySource / ArraySink](/docs/api/utilities/arraysource/) - Byte array I/O
+- [HashFilter](/docs/api/utilities/hashfilter/) - Hash computation filter
+- [SignerFilter / VerifierFilter](/docs/api/utilities/signerfilter/) - Digital signature filters
+- [StreamTransformationFilter](/docs/api/utilities/streamtransformationfilter/) - Encryption/decryption filter
 
 ## Quick Navigation
 
