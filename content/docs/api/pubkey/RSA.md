@@ -4,9 +4,9 @@ description: RSA public-key cryptography API reference (legacy)
 weight: 3
 ---
 
-**Header:** `#include <cryptopp/rsa.h>` and `#include <cryptopp/oaep.h>`
+**Header:** `#include <cryptopp/rsa.h>` and `#include <cryptopp/oaep.h>`  
 **Namespace:** `CryptoPP`
-**Since:** Crypto++ 1.0
+**Since:** Crypto++ 1.0  
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 
 RSA is a public-key cryptosystem that can be used for both encryption and digital signatures. While still widely supported for legacy compatibility, modern applications should prefer Ed25519 for signatures and X25519/ECDH for key exchange.
