@@ -41,6 +41,25 @@ NIST standard based on Keccak
 - Different construction than SHA-2
 - FIPS 202 compliant
 
+## Legacy Hash Functions
+
+{{< callout type="warning" >}}
+**These hash functions are cryptographically broken.** Only use for legacy system compatibility or non-security checksums. For new applications, use SHA-256, SHA-3, or BLAKE3.
+{{< /callout >}}
+
+### [SHA-1](/docs/api/hash/sha1/) ⚠️ Deprecated
+Cryptographically broken since 2017
+- 160-bit output
+- Collision attacks demonstrated (SHAttered)
+- Only for legacy compatibility
+
+### [MD5](/docs/api/hash/md5/) ⚠️ Broken
+Completely broken since 2004
+- 128-bit output
+- Collisions in seconds on modern hardware
+- In `Weak::` namespace
+- **Never use for security**
+
 ## Common Interface
 
 All hash functions share a common interface:
@@ -75,6 +94,8 @@ public:
 | SHA-256 | 32 bytes | 256-bit | ⚡⚡⚡⚡ | Standard |
 | SHA-512 | 64 bytes | 256-bit | ⚡⚡⚡⚡ | Standard |
 | SHA-3-256 | 32 bytes | 256-bit | ⚡⚡⚡ | Standard |
+| SHA-1 | 20 bytes | ❌ Broken | ⚡⚡⚡⚡ | Legacy only |
+| MD5 | 16 bytes | ❌ Broken | ⚡⚡⚡⚡⚡ | Legacy only |
 
 ## See Also
 

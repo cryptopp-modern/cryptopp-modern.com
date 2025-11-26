@@ -36,11 +36,18 @@ Traditional public-key encryption and signatures
 - Slower than elliptic curves
 - Still acceptable but prefer Ed25519/X25519 for new systems
 
-### ECDSA (coming soon)
+### [ECDSA](/docs/api/pubkey/ecdsa/)
 Elliptic Curve Digital Signature Algorithm
 - NIST standard curves (P-256, P-384, P-521)
-- Used in TLS, Bitcoin
-- Consider Ed25519 for new systems
+- Used in TLS, Bitcoin, X.509 certificates
+- Deterministic variant (RFC 6979) available
+- Consider Ed25519 for new systems when NIST compliance not required
+
+### [ECDH](/docs/api/pubkey/ecdh/)
+Elliptic Curve Diffie-Hellman key exchange
+- NIST standard curves (P-256, P-384, P-521)
+- Used in TLS 1.2, many protocols
+- Consider X25519 for new systems
 
 ## Quick Comparison
 

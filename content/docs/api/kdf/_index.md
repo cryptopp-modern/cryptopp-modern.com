@@ -20,15 +20,11 @@ Memory-hard password hashing function
 - Cryptocurrency wallet encryption
 - Disk encryption key derivation
 
-### bcrypt (coming soon)
-Legacy password hashing function
-- Still acceptable for existing systems
-- Consider migrating to Argon2
-
-### scrypt (coming soon)
-Memory-hard password hashing
+### [scrypt](/docs/api/kdf/scrypt/)
+Memory-hard password hashing (RFC 7914)
 - Alternative to Argon2
-- Good but not as configurable
+- Used in Tarsnap, some cryptocurrencies
+- Good but less configurable than Argon2
 
 ## Key Derivation Functions
 

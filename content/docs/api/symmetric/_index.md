@@ -30,6 +30,13 @@ Modern authenticated encryption alternative
 - 256-bit keys only
 - Used in TLS 1.3, WireGuard, Signal
 
+### [XChaCha20-Poly1305](/docs/api/symmetric/xchacha20-poly1305/)
+Extended nonce variant of ChaCha20-Poly1305
+- 24-byte nonce (vs 12-byte standard)
+- Safe to use random nonces
+- Ideal for file encryption and at-rest data
+- No counter tracking required
+
 ## Block Ciphers (Low-Level)
 
 **Warning:** These are building blocks. Use AEAD modes above instead.
@@ -96,6 +103,7 @@ Authenticated encryption mode
 |-------------|---------------|----------|----------------|-------------|
 | **AES-GCM** | ✅ Yes | ✅ Yes | ✅ Yes | ⭐ Primary choice |
 | ChaCha20-Poly1305 | ✅ Yes | ✅ Yes | ❌ No | Software systems |
+| XChaCha20-Poly1305 | ✅ Yes | ✅ Yes | ❌ No | Random nonces |
 | AES-CCM | ✅ Yes | ❌ No | ✅ Yes | Constrained devices |
 | AES-CBC | ❌ No | ❌ No | ✅ Yes | Legacy only |
 | AES-CTR | ❌ No | ✅ Yes | ✅ Yes | With HMAC only |
