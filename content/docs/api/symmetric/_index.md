@@ -64,11 +64,19 @@ Legacy encryption mode with Encrypt-then-MAC
 - Not parallelizable
 - Use for legacy system compatibility
 
-### CTR (Counter Mode) (coming soon)
-Stream cipher mode
+### [AES-CTR](/docs/api/symmetric/aes-ctr/)
+Counter mode stream cipher
 - **Requires separate MAC (use HMAC)**
 - Parallelizable
 - Random access to encrypted data
+- No padding required
+
+### [AES-CBC](/docs/api/symmetric/aes-cbc/)
+Cipher Block Chaining mode
+- **Requires separate MAC (use HMAC)**
+- Not parallelizable (encryption)
+- Requires PKCS7 padding
+- Legacy system compatibility
 
 ### CCM (Counter with CBC-MAC) (coming soon)
 Authenticated encryption mode

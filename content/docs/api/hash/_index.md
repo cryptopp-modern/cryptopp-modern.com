@@ -16,6 +16,13 @@ Cryptographic hash functions for data integrity, digital signatures, and content
 - Keyed hashing (MAC mode)
 - Key derivation (KDF mode)
 
+### [BLAKE2b / BLAKE2s](/docs/api/hash/blake2/)
+High-speed hash functions (RFC 7693)
+- BLAKE2b: optimized for 64-bit (up to 512-bit output)
+- BLAKE2s: optimized for 32-bit (up to 256-bit output)
+- Built-in keyed mode (MAC without HMAC)
+- Faster than MD5/SHA-1/SHA-2
+
 ### [SHA-256](/docs/api/hash/sha256/)
 Standard hash function, widely supported
 - 256-bit security
@@ -63,6 +70,8 @@ public:
 | Algorithm | Output Size | Security | Speed | Status |
 |-----------|-------------|----------|-------|--------|
 | BLAKE3 | 32 bytes (extendable) | 256-bit | ⚡⚡⚡⚡⚡ | Recommended |
+| BLAKE2b | 64 bytes (configurable) | 256-bit | ⚡⚡⚡⚡ | RFC 7693 |
+| BLAKE2s | 32 bytes (configurable) | 128-bit | ⚡⚡⚡⚡ | RFC 7693 |
 | SHA-256 | 32 bytes | 256-bit | ⚡⚡⚡⚡ | Standard |
 | SHA-512 | 64 bytes | 256-bit | ⚡⚡⚡⚡ | Standard |
 | SHA-3-256 | 32 bytes | 256-bit | ⚡⚡⚡ | Standard |

@@ -245,27 +245,35 @@ int main() {
 #include <cryptopp/filters.h>
 #include <cryptopp/hex.h>
 
-std::string computeFileCMAC(const std::string& filename,
-                             const SecByteBlock& key) {
+// Compute CMAC and return raw bytes
+void computeFileCMAC(const std::string& filename,
+                     const SecByteBlock& key,
+                     byte* mac) {
     using namespace CryptoPP;
 
     CMAC<AES> cmac(key, key.size());
-    std::string mac;
 
-    FileSource(filename, true,
+    FileSource(filename.c_str(), true,
         new HashFilter(cmac,
-            new HexEncoder(new StringSink(mac))
+            new ArraySink(mac, AES::BLOCKSIZE)
         )
     );
-
-    return mac;
 }
 
+// Verify using constant-time comparison
 bool verifyFileCMAC(const std::string& filename,
-                    const std::string& expectedMAC,
+                    const byte* expectedMAC,
                     const SecByteBlock& key) {
-    std::string computedMAC = computeFileCMAC(filename, key);
-    return computedMAC == expectedMAC;
+    using namespace CryptoPP;
+
+    CMAC<AES> cmac(key, key.size());
+
+    FileSource(filename.c_str(), true,
+        new HashFilter(cmac)
+    );
+
+    // Constant-time verification
+    return cmac.Verify(expectedMAC);
 }
 ```
 
@@ -455,18 +463,53 @@ void checkHardwareSupport() {
 
 ## Security Properties
 
-| Property | Value |
-|----------|-------|
-| **Security level** | Half of key size (64-128 bits) |
-| **Tag size** | 128 bits (16 bytes) |
-| **Forgery probability** | 2^(-tag_bits) |
-| **Birthday bound** | 2^64 blocks per key |
+- **Primitive:** CMAC is a message authentication code (MAC) built from a block cipher. In Crypto++, `CMAC<AES>` is the most common instantiation.
+
+- **Block & tag size:**
+  - For `CMAC<AES>` the block size is **128 bits**.
+  - The MAC tag can be up to **128 bits (16 bytes)**; shorter tags are supported via truncation.
+
+- **Security level / bounds:**
+  - Security is fundamentally limited by the **block/tag size**, not the AES key size.
+  - For AES-CMAC with a 128-bit tag, the generic forgery bound is on the order of a **birthday attack**, i.e. about 2^64 blocks per key.
+  - In practice, follow NIST guidance and treat **~2^48 message blocks per key** as a conservative upper limit.
+
+- **Key sizes:**
+  - AES keys: 128, 192, or 256 bits (all supported by `CMAC<AES>`).
+  - Larger AES keys protect against block-cipher key-recovery, but do **not** increase the birthday bound imposed by the 128-bit block/tag size.
+
+- **Deterministic MAC:** CMAC is deterministic: for a fixed key and message, the tag is always the same. There is **no nonce** or randomisation in the scheme itself.
 
 ### Security Notes
 
-1. **Key separation:** Don't use same key for encryption and CMAC
-2. **Message limit:** Recommended to rekey after 2^48 blocks
-3. **Truncation:** Truncating to T bits gives ~2^(-T) forgery probability
+- **Message / data limits:**
+  - Keep total usage per key well below the theoretical birthday bound.
+  - As a rule of thumb, **re-key long before you reach ~2^48 blocks** of data authenticated under a single CMAC key.
+  - For ciphers with a 64-bit block size (e.g. 3DES), limits are much stricter (birthday bound ~2^32 blocks); such variants are legacy and should only be used when required for compatibility.
+
+- **Tag length choices:**
+  - Use a **128-bit tag** for new designs unless there is a strong reason to truncate.
+  - If you truncate (e.g. to 64 or 96 bits), your forgery resistance drops to roughly 2^(-t) for a t-bit tag; choose t accordingly.
+
+- **Key separation:**
+  - Do **not** reuse the same key for CMAC and for encryption, or across different MAC algorithms.
+  - Derive separate sub-keys for encryption, CMAC, and any other MAC/KDF using a key hierarchy appropriate for your protocol.
+
+- **Key quality & storage:**
+  - CMAC keys must be uniformly random and secret (e.g. generated via `AutoSeededRandomPool`).
+  - Store keys in secure memory where possible and protect them according to your application's key-management policy.
+
+- **Verification:**
+  - Always perform tag checks in **constant time**.
+  - In Crypto++, prefer `CMAC::Verify` / `VerifyTruncatedDigest` or other constant-time comparison utilities, rather than `operator==` on strings or buffers.
+
+- **No confidentiality:**
+  - CMAC provides **integrity and authenticity only**. It does *not* encrypt or hide the message.
+  - For authenticated encryption, use AES-GCM or ChaCha20-Poly1305 rather than "encrypt + CMAC" unless your protocol is explicitly designed and reviewed.
+
+- **Replay & protocol context:**
+  - Because CMAC is deterministic, you must handle **replay protection** at the protocol level (sequence numbers, nonces, counters, or timestamps).
+  - When authenticating structured data, include all relevant context (protocol version, direction, headers, etc.) in the CMAC input so that tags cannot be replayed out of context.
 
 ## Thread Safety
 

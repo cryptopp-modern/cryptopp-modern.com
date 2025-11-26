@@ -37,15 +37,21 @@ HMAC-based key derivation
 - For deriving keys from shared secrets
 - Not for passwords (use Argon2)
 
+### [PBKDF2](/docs/api/kdf/pbkdf2/)
+Password-Based Key Derivation Function 2
+- RFC 2898 / FIPS compliant
+- For legacy systems and FIPS requirements
+- **Use Argon2 for new applications**
+
 ## Quick Comparison
 
 | Function | Password Hashing | Key Derivation | Memory-Hard | Recommended |
 |----------|------------------|----------------|-------------|-------------|
 | **Argon2** | ✅ Best | ❌ No | ✅ Yes | ⭐ |
 | HKDF | ❌ No | ✅ Yes | ❌ No | For secrets |
+| PBKDF2 | ⚠️ Legacy | ⚠️ Legacy | ❌ No | FIPS only |
 | bcrypt | ✅ Acceptable | ❌ No | ⚠️ Moderate | Legacy |
 | scrypt | ✅ Good | ⚠️ Maybe | ✅ Yes | Alternative |
-| PBKDF2 | ⚠️ Weak | ⚠️ Weak | ❌ No | Avoid |
 
 ## See Also
 

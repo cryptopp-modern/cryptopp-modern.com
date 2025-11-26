@@ -344,27 +344,29 @@ std::string signRequest(const std::string& method,
     return signature;
 }
 
-// Verify API request signature
+// Verify API request signature (constant-time)
 bool verifyRequest(const std::string& method,
                    const std::string& path,
                    const std::string& body,
                    const std::string& receivedSig,
                    const byte* apiKey, size_t keyLen) {
-    std::string expectedSig = signRequest(method, path, body, apiKey, keyLen);
+    // Rebuild message
+    std::ostringstream oss;
+    oss << method << "\n" << path << "\n" << body;
+    std::string message = oss.str();
 
-    // Constant-time comparison (built into VerifyTruncatedDigest)
-    HMAC<SHA256> hmac;
-    std::string receivedMAC, expectedMAC;
-
+    // Decode received signature (hex -> bytes)
+    std::string receivedMAC;
     StringSource(receivedSig, true,
         new HexDecoder(new StringSink(receivedMAC))
     );
 
-    StringSource(expectedSig, true,
-        new HexDecoder(new StringSink(expectedMAC))
+    // One-shot verification (constant-time)
+    return HMAC<SHA256>::VerifyMAC(
+        reinterpret_cast<const byte*>(receivedMAC.data()), receivedMAC.size(),
+        reinterpret_cast<const byte*>(message.data()), message.size(),
+        apiKey, keyLen
     );
-
-    return receivedMAC == expectedMAC;  // Use VerifyMAC for better security
 }
 
 int main() {
@@ -428,12 +430,29 @@ std::string hmacFile(const std::string& filename, const SecByteBlock& key) {
     return hexOutput;
 }
 
-// Verify file integrity
+// Verify file integrity (constant-time)
 bool verifyFile(const std::string& filename,
-                const std::string& expectedHMAC,
+                const std::string& expectedHMACHex,
                 const SecByteBlock& key) {
-    std::string actualHMAC = hmacFile(filename, key);
-    return actualHMAC == expectedHMAC;
+    // Recompute HMAC as raw bytes
+    HMAC<SHA256> hmac(key, key.size());
+    std::string mac;
+    FileSource(filename.c_str(), true,
+        new HashFilter(hmac, new StringSink(mac))
+    );
+
+    // Decode expected hex to bytes
+    std::string expectedMAC;
+    StringSource(expectedHMACHex, true,
+        new HexDecoder(new StringSink(expectedMAC))
+    );
+
+    // Constant-time verification
+    return HMAC<SHA256>::VerifyMAC(
+        reinterpret_cast<const byte*>(expectedMAC.data()), expectedMAC.size(),
+        reinterpret_cast<const byte*>(mac.data()), mac.size(),
+        key, key.size()
+    );
 }
 
 int main() {
@@ -473,7 +492,7 @@ int main() {
 ```cpp
 HMAC<SHA256> hmac(key, keyLen);
 // Output: 256 bits (32 bytes)
-// Security: 256-bit collision resistance, 256-bit preimage resistance
+// Security: up to 128-bit collision resistance; MAC forgery ~2^(-t) for t-bit tag
 ```
 
 **Use for:** Most applications, API authentication, file integrity
@@ -483,7 +502,7 @@ HMAC<SHA256> hmac(key, keyLen);
 ```cpp
 HMAC<SHA512> hmac(key, keyLen);
 // Output: 512 bits (64 bytes)
-// Security: 512-bit collision resistance, 512-bit preimage resistance
+// Security: up to 256-bit collision/preimage resistance; MAC forgery ~2^(-t) for t-bit tag
 ```
 
 **Use for:** High-security applications, long-term authentication
@@ -493,18 +512,20 @@ HMAC<SHA512> hmac(key, keyLen);
 ```cpp
 HMAC<BLAKE3> hmac(key, keyLen);
 // Output: 256 bits (32 bytes)
-// Security: 256-bit collision resistance, 256-bit preimage resistance
+// Security: ~128-bit security target (per BLAKE3 spec) for all goals
 // Speed: 2-4x faster than HMAC-SHA256
 ```
 
 **Use for:** High-throughput applications, performance-critical systems
+
+**Note:** BLAKE3 also has its own built-in keyed mode, which may be preferable in some designs depending on your protocol and API needs.
 
 ### HMAC-SHA3-256
 
 ```cpp
 HMAC<SHA3_256> hmac(key, keyLen);
 // Output: 256 bits (32 bytes)
-// Security: 256-bit collision resistance, 256-bit preimage resistance
+// Security: up to 128-bit collision resistance; MAC forgery ~2^(-t) for t-bit tag
 ```
 
 **Use for:** Compliance requirements, diversity from SHA-2
@@ -514,7 +535,7 @@ HMAC<SHA3_256> hmac(key, keyLen);
 ```cpp
 HMAC<SHA1> hmac(key, keyLen);
 // Output: 160 bits (20 bytes)
-// Security: WEAK - SHA1 is broken
+// Security: WEAK - SHA1 collision resistance is broken
 ```
 
 **Use for:** Legacy systems only. Migrate to HMAC-SHA256.
@@ -540,38 +561,88 @@ HMAC<SHA1> hmac(key, keyLen);
 
 ### Security Properties
 
-- **Resistance:** Secure if underlying hash is secure
-- **Key length:** Minimum 128 bits (16 bytes), recommended 256 bits (32 bytes)
-- **Output:** Same size as underlying hash
+- **Primitive:** HMAC is a message authentication code (MAC) built from a cryptographic hash function. In Crypto++, `HMAC<T>` takes any `HashTransformation` (e.g. `SHA256`, `SHA512`, `BLAKE3`).
+
+- **Tag size:**
+  - The MAC tag length defaults to the full hash output size (e.g. 32 bytes for SHA-256, 64 bytes for SHA-512).
+  - Tags may be truncated; forging probability then scales with the tag length (approximately 2^(-t) for a t-bit tag, assuming other limits are respected).
+
+- **Security level / bounds:**
+  - HMAC security is primarily governed by the hash function's PRF / compression-function properties and the tag length you use.
+  - With a t-bit tag and proper key management, generic forgery attacks require about 2^t work.
+  - For hashes with 256-bit output (SHA-256, BLAKE3), a 128-bit tag already gives a comfortable margin for most applications.
+
+- **Key sizes:**
+  - Recommended HMAC key length: **at least 128 bits**, typically 256 bits for SHA-256 / SHA-512.
+  - Keys longer than the hash block size are first hashed internally; very long keys do not meaningfully increase security beyond the tag length and hash strength.
+
+- **Deterministic MAC:** HMAC is deterministic: for a fixed key and message, the tag is always the same. There is no nonce or IV in the scheme itself.
+
+- **Underlying hash assumptions:**
+  - HMAC remains secure even if the hash has weaknesses in collision resistance, as long as its compression function behaves like a pseudorandom function.
+  - You should still choose modern, standard hashes (`SHA256`, `SHA512`, `BLAKE3`) and avoid obsolete ones (e.g. `MD5`, `SHA1`).
+
 - **Standard:** RFC 2104, FIPS 198-1
 
 ### Security Best Practices
 
-1. **Key Generation:**
-   ```cpp
-   AutoSeededRandomPool rng;
-   SecByteBlock key(32);  // 256-bit key
-   rng.GenerateBlock(key, key.size());
-   ```
+- **Choice of hash function:**
+  - Prefer `HMAC<SHA256>` for general use.
+  - Use `HMAC<SHA512>` where you want larger tags or are already standardised on SHA-512.
+  - `HMAC<BLAKE3>` is suitable when you need very high speed and are comfortable with BLAKE3's security model; note that BLAKE3 also has its own keyed mode, which may be preferable in some designs.
 
-2. **Constant-Time Verification:**
-   ```cpp
-   // WRONG - timing attack vulnerable
-   if (computedMAC == receivedMAC) { /* ... */ }
+- **Key generation and management:**
+  - Generate keys with a CSPRNG (e.g. `AutoSeededRandomPool`) and never derive them from predictable values.
+  - Do not reuse the same key across different MAC algorithms (e.g. HMAC and CMAC), or for both MAC and encryption.
+  - Use a KDF or key hierarchy to derive distinct sub-keys per purpose (encryption, MAC, KDF, etc.).
 
-   // CORRECT - use VerifyMAC or VerifyTruncatedDigest
-   bool valid = hmac.VerifyMAC(receivedMAC, macLen, message, msgLen, key, keyLen);
-   ```
+  ```cpp
+  AutoSeededRandomPool rng;
+  SecByteBlock key(32);  // 256-bit key
+  rng.GenerateBlock(key, key.size());
+  ```
 
-3. **Key Storage:**
-   ```cpp
-   SecByteBlock key(32);  // Auto-zeroes on destruction
-   // NOT: byte key[32];   // Leaves key in memory
-   ```
+- **Tag length:**
+  - Use at least **128-bit** tags for new designs.
+  - Truncating to 128 bits from a longer hash (like SHA-256 or SHA-512) is a common and safe pattern.
+  - If you truncate further (e.g. 64 or 96 bits), understand that your forgery resistance becomes roughly 2^(-t) for a t-bit tag.
 
-4. **Appropriate Hash Function:**
-   - ✅ SHA-256, SHA-512, BLAKE3, SHA-3
-   - ❌ SHA-1, MD5 (broken)
+- **Verification (constant-time checks):**
+  - Never compare MAC tags with `operator==` on `std::string` or raw buffers.
+  - Use `HMAC<T>::VerifyMAC` or another constant-time comparison routine so that the runtime does not leak how many bytes matched.
+
+  ```cpp
+  // WRONG - timing attack vulnerable
+  if (computedMAC == receivedMAC) { /* ... */ }
+
+  // CORRECT - use static VerifyMAC (constant-time)
+  bool valid = HMAC<SHA256>::VerifyMAC(
+      receivedMAC, macLen,
+      message, msgLen,
+      key, keyLen
+  );
+  ```
+
+- **Key storage:**
+  ```cpp
+  SecByteBlock key(32);  // Auto-zeroes on destruction
+  // NOT: byte key[32];   // Leaves key in memory
+  ```
+
+- **Protocol context and replay:**
+  - Because HMAC is deterministic, you must handle replay protection at the protocol level (sequence numbers, nonces/counters, timestamps, etc.).
+  - When authenticating structured messages, include all relevant context in the MAC input (e.g. method, path, headers, direction, protocol version) to prevent tags being replayed in a different context.
+
+- **Usage limits:**
+  - There is no strict "block count" limit like a block cipher mode, but you should still re-key periodically in long-lived systems.
+  - Avoid designs where an attacker can obtain an unbounded number of MACs under the same key on fully attacker-chosen messages, unless this is required and analysed.
+
+- **Do not use HMAC as a password hash:**
+  - HMAC is fast by design. For password storage, use a dedicated password hashing / KDF scheme (e.g. Argon2) and keep HMAC for message authentication.
+
+- **No confidentiality:**
+  - HMAC provides integrity and authenticity only. It does not encrypt or hide the message.
+  - For authenticated encryption, use an AEAD construction (e.g. AES-GCM, ChaCha20-Poly1305) rather than "encrypt + HMAC" unless your protocol is explicitly designed and reviewed for that pattern.
 
 ### Test Vectors (RFC 2104)
 

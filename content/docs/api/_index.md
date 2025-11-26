@@ -11,6 +11,7 @@ Complete API documentation for all classes, methods, and functions in the crypto
 High-performance cryptographic hash functions for data integrity and digital signatures.
 
 - [BLAKE3](/docs/api/hash/blake3/) - Fastest modern hash function with parallelism support
+- [BLAKE2b / BLAKE2s](/docs/api/hash/blake2/) - High-speed hash functions (RFC 7693)
 - [SHA-256](/docs/api/hash/sha256/) - Standard hash function with hardware acceleration
 - [SHA-512](/docs/api/hash/sha512/) - 64-bit optimized hash for high security
 - [SHA-3](/docs/api/hash/sha3/) - FIPS 202 Keccak-based hash function
@@ -21,6 +22,7 @@ Secure password hashing and key derivation functions.
 
 - [Argon2](/docs/api/kdf/argon2/) - Memory-hard password hashing (recommended)
 - [HKDF](/docs/api/kdf/hkdf/) - HMAC-based key derivation for secrets
+- [PBKDF2](/docs/api/kdf/pbkdf2/) - Password-based key derivation (legacy/FIPS)
 
 ## Symmetric Encryption
 
@@ -29,6 +31,8 @@ Authenticated encryption algorithms for encrypting data.
 - [AES-GCM](/docs/api/symmetric/aes-gcm/) - Industry standard authenticated encryption (recommended)
 - [ChaCha20-Poly1305](/docs/api/symmetric/chacha20-poly1305/) - Modern AEAD without hardware acceleration needs
 - [AES-CBC with HMAC](/docs/api/symmetric/aes-cbc-hmac/) - Legacy encrypt-then-MAC pattern
+- [AES-CTR](/docs/api/symmetric/aes-ctr/) - Counter mode (requires separate MAC)
+- [AES-CBC](/docs/api/symmetric/aes-cbc/) - Cipher Block Chaining mode (requires separate MAC)
 
 ## Public-Key Cryptography
 
@@ -65,6 +69,12 @@ Data transformation pipeline for streaming operations.
 - [HashFilter](/docs/api/utilities/hashfilter/) - Hash computation filter
 - [SignerFilter / VerifierFilter](/docs/api/utilities/signerfilter/) - Digital signature filters
 - [StreamTransformationFilter](/docs/api/utilities/streamtransformationfilter/) - Encryption/decryption filter
+- [AuthenticatedEncryptionFilter](/docs/api/utilities/authenticatedencryptionfilter/) - AEAD encryption filter
+- [Redirector / Tee](/docs/api/utilities/redirector/) - Pipeline branching and duplication
+
+## Advanced Utilities
+
+- [Integer](/docs/api/utilities/integer/) - Arbitrary precision integers for big number operations
 
 ## Quick Navigation
 

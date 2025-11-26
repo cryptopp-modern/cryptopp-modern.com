@@ -84,6 +84,24 @@ Apply encryption/decryption
 - Encrypt/decrypt streams
 - Handle padding automatically
 
+### [AuthenticatedEncryptionFilter](/docs/api/utilities/authenticatedencryptionfilter/)
+AEAD encryption and decryption filter
+- For AES-GCM, ChaCha20-Poly1305, etc.
+- Handles authentication tags automatically
+
+### [Redirector / Tee](/docs/api/utilities/redirector/)
+Pipeline branching and data duplication
+- Tee: Send data to multiple destinations
+- Redirector: Forward without taking ownership
+
+## Advanced Utilities
+
+### [Integer](/docs/api/utilities/integer/)
+Arbitrary precision integers
+- For RSA, DH, and big number operations
+- Modular arithmetic functions
+- Number theory utilities
+
 ## Quick Examples
 
 ### Generate Random Data
