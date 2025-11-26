@@ -22,14 +22,14 @@ Modern elliptic curve key exchange
 - Key exchange for symmetric encryption
 - Modern alternative to traditional DH/RSA key exchange
 
-### Ed25519 (coming soon)
+### [Ed25519](/docs/api/pubkey/ed25519/)
 Modern elliptic curve digital signatures
 - Fast signature generation and verification
 - 128-bit security level
 - Deterministic signatures
 - Used in SSH, GPG, cryptocurrencies
 
-### RSA (coming soon)
+### [RSA](/docs/api/pubkey/rsa/)
 Traditional public-key encryption and signatures
 - Widely supported (legacy systems)
 - Larger keys (2048-4096 bits)

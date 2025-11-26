@@ -37,22 +37,17 @@ Secure memory allocation for sensitive data
 
 ## Encoding & Decoding
 
-### HexEncoder / HexDecoder (coming soon)
+### [HexEncoder / HexDecoder](/docs/api/utilities/hexencoder/)
 Convert binary data to/from hexadecimal
 - Display keys and hashes
 - Parse hex strings
 - Debugging cryptographic operations
 
-### Base64Encoder / Base64Decoder (coming soon)
+### [Base64Encoder / Base64Decoder](/docs/api/utilities/base64encoder/)
 Convert binary data to/from Base64
 - URL-safe variant available
 - Transmit binary data in text protocols
 - Store binary data in text files
-
-### Base32Encoder / Base32Decoder (coming soon)
-Convert binary data to/from Base32
-- Case-insensitive encoding
-- Used in TOTP/HOTP (2FA)
 
 ## Data Transformation
 

@@ -23,7 +23,7 @@ Advanced Encryption Standard with Galois/Counter Mode
 - Database encryption
 - Any scenario requiring both encryption and authentication
 
-### ChaCha20-Poly1305 (coming soon)
+### [ChaCha20-Poly1305](/docs/api/symmetric/chacha20-poly1305/)
 Modern authenticated encryption alternative
 - Excellent for systems without AES hardware acceleration
 - Constant-time (resistant to timing attacks)
@@ -57,12 +57,12 @@ Authenticated encryption mode
 - Parallelizable
 - Industry standard
 
-### CBC (Cipher Block Chaining) (coming soon)
-Legacy encryption mode
-- **Requires separate MAC (use HMAC)**
-- Padding oracle vulnerabilities possible
+### [AES-CBC with HMAC](/docs/api/symmetric/aes-cbc-hmac/)
+Legacy encryption mode with Encrypt-then-MAC
+- **Requires separate MAC (uses HMAC)**
+- Padding oracle vulnerabilities mitigated
 - Not parallelizable
-- Avoid for new systems
+- Use for legacy system compatibility
 
 ### CTR (Counter Mode) (coming soon)
 Stream cipher mode

@@ -32,15 +32,10 @@ Memory-hard password hashing
 
 ## Key Derivation Functions
 
-### HKDF (coming soon)
+### [HKDF](/docs/api/kdf/hkdf/)
 HMAC-based key derivation
 - For deriving keys from shared secrets
 - Not for passwords (use Argon2)
-
-### PBKDF2 (coming soon)
-Password-Based Key Derivation Function 2
-- Legacy, avoid for new systems
-- Not memory-hard (weak against GPUs)
 
 ## Quick Comparison
 

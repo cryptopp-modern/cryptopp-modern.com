@@ -16,19 +16,19 @@ Cryptographic hash functions for data integrity, digital signatures, and content
 - Keyed hashing (MAC mode)
 - Key derivation (KDF mode)
 
-### SHA-256 (coming soon)
+### [SHA-256](/docs/api/hash/sha256/)
 Standard hash function, widely supported
 - 256-bit security
 - FIPS 180-4 compliant
 - Hardware acceleration (SHA-NI)
 
-### SHA-512 (coming soon)
+### [SHA-512](/docs/api/hash/sha512/)
 Large output hash function
 - 512-bit output
 - 256-bit security
 - Faster than SHA-256 on 64-bit systems
 
-### SHA-3 (coming soon)
+### [SHA-3](/docs/api/hash/sha3/)
 NIST standard based on Keccak
 - Multiple output sizes (224, 256, 384, 512)
 - Different construction than SHA-2

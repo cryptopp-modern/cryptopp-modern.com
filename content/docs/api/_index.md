@@ -11,37 +11,32 @@ Complete API documentation for all classes, methods, and functions in the crypto
 High-performance cryptographic hash functions for data integrity and digital signatures.
 
 - [BLAKE3](/docs/api/hash/blake3/) - Fastest modern hash function with parallelism support
-- SHA-256 (coming soon)
-- SHA-512 (coming soon)
-- SHA-3 (coming soon)
+- [SHA-256](/docs/api/hash/sha256/) - Standard hash function with hardware acceleration
+- [SHA-512](/docs/api/hash/sha512/) - 64-bit optimized hash for high security
+- [SHA-3](/docs/api/hash/sha3/) - FIPS 202 Keccak-based hash function
 
 ## Password Hashing & Key Derivation
 
 Secure password hashing and key derivation functions.
 
 - [Argon2](/docs/api/kdf/argon2/) - Memory-hard password hashing (recommended)
-- PBKDF2 (coming soon)
-- HKDF (coming soon)
-- bcrypt (coming soon)
-- scrypt (coming soon)
+- [HKDF](/docs/api/kdf/hkdf/) - HMAC-based key derivation for secrets
 
 ## Symmetric Encryption
 
 Authenticated encryption algorithms for encrypting data.
 
 - [AES-GCM](/docs/api/symmetric/aes-gcm/) - Industry standard authenticated encryption (recommended)
-- ChaCha20-Poly1305 (coming soon)
-- AES-CCM (coming soon)
-- Block cipher modes (coming soon)
+- [ChaCha20-Poly1305](/docs/api/symmetric/chacha20-poly1305/) - Modern AEAD without hardware acceleration needs
+- [AES-CBC with HMAC](/docs/api/symmetric/aes-cbc-hmac/) - Legacy encrypt-then-MAC pattern
 
 ## Public-Key Cryptography
 
 Asymmetric cryptography for signatures and key exchange.
 
 - [X25519](/docs/api/pubkey/x25519/) - Modern key exchange (recommended)
-- Ed25519 (coming soon)
-- RSA (coming soon)
-- ECDSA (coming soon)
+- [Ed25519](/docs/api/pubkey/ed25519/) - Modern digital signatures (recommended)
+- [RSA](/docs/api/pubkey/rsa/) - Legacy public-key encryption and signatures
 
 ## Message Authentication
 
@@ -57,9 +52,8 @@ Essential utilities for cryptographic operations.
 
 - [AutoSeededRandomPool](/docs/api/utilities/autoseededrandompool/) - Cryptographic RNG (essential)
 - [SecByteBlock](/docs/api/utilities/secbyteblock/) - Secure memory for keys (essential)
-- HexEncoder/HexDecoder (coming soon)
-- Base64Encoder/Base64Decoder (coming soon)
-- Filters and Pipelines (coming soon)
+- [HexEncoder](/docs/api/utilities/hexencoder/) - Hexadecimal encoding and decoding
+- [Base64Encoder](/docs/api/utilities/base64encoder/) - Base64 and Base64URL encoding
 
 ## Quick Navigation
 
