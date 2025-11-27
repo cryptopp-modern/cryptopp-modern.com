@@ -53,7 +53,7 @@ Key features:
 **Do:**
 - Use BLAKE3 for general-purpose hashing, file integrity, and content addressing
 - Use keyed mode (MAC) for message authentication with a secret key
-- Use KDF mode for deriving keys from high-entropy key material (e.g., shared secrets or Argon2 output)
+- Use KDF mode for deriving keys from high-entropy secrets or existing keys
 - Use the same instance for multiple messages (call `Restart()` between them)
 - Use hardware-accelerated builds (`AlgorithmProvider()` shows what's active)
 
@@ -382,7 +382,7 @@ int main() {
     using namespace CryptoPP;
 
     // Derive different keys from the same input material
-    std::string inputKeyMaterial = "shared_secret_or_password";
+    std::string inputKeyMaterial = "high_entropy_secret_key";
 
     // Derive encryption key
     BLAKE3 kdfEncrypt("MyApplication 2025-11-25 Encryption Key", 32);
