@@ -4,7 +4,7 @@ description: API reference for symmetric encryption algorithms
 weight: 3
 ---
 
-Symmetric encryption algorithms for encrypting data with authenticated encryption (AEAD) modes.
+Symmetric encryption algorithms, focusing on authenticated encryption (AEAD) modes.
 
 ## Authenticated Encryption (AEAD)
 
@@ -18,7 +18,7 @@ Advanced Encryption Standard with Galois/Counter Mode
 - 128, 192, or 256-bit keys
 
 **Use AES-GCM for:**
-- File encryption
+- File encryption (with careful nonce management)
 - Network protocol encryption (TLS, IPsec)
 - Database encryption
 - Any scenario requiring both encryption and authentication
@@ -32,77 +32,42 @@ Modern authenticated encryption alternative
 
 ### [XChaCha20-Poly1305](/docs/api/symmetric/xchacha20-poly1305/)
 Extended nonce variant of ChaCha20-Poly1305
-- 24-byte nonce (vs 12-byte standard)
+- 24-byte nonce with negligible collision risk
 - Safe to use random nonces
 - Ideal for file encryption and at-rest data
 - No counter tracking required
 
-## Block Ciphers (Low-Level)
+### [AES-CCM](/docs/api/symmetric/aes-ccm/)
+Counter with CBC-MAC mode
+- Used in Wi-Fi (WPA2/WPA3 CCMP-128), Bluetooth, Zigbee, and TLS
+- Two-pass mode (slower than GCM)
+- Requires pre-specified data lengths
+- Variable nonce size (7-13 bytes)
+
+### [AES-EAX](/docs/api/symmetric/aes-eax/)
+EAX authenticated encryption mode
+- Simple, well-analyzed construction
+- Built from CTR mode + CMAC
+- Flexible nonce length (any size)
+- Good choice when GCM hardware unavailable
+
+## Low-Level Primitives
 
 **Warning:** These are building blocks. Use AEAD modes above instead.
 
-### AES (coming soon)
-Advanced Encryption Standard
-- FIPS 197 approved
-- Block size: 128 bits
-- Key sizes: 128, 192, 256 bits
-- Hardware acceleration available
+AES, ChaCha20, Twofish, and other block/stream ciphers are available as raw primitives, but you should almost always use the AEAD modes above.
 
-### ChaCha20 (coming soon)
-Stream cipher
-- 256-bit keys
-- Fast in software
-- No timing side channels
+- [Twofish](/docs/api/symmetric/twofish/) - AES finalist block cipher (128-bit block, 128/192/256-bit keys)
 
-### [Twofish](/docs/api/symmetric/twofish/)
-AES finalist block cipher
-- 128-bit block size
-- Key sizes: 128, 192, 256 bits
-- No known attacks
-- Alternative to AES
+## Legacy Modes (Require Separate MAC)
 
-## Block Cipher Modes
+**Warning:** These modes don't provide authentication. Prefer AEAD modes like GCM, ChaCha20-Poly1305, XChaCha20-Poly1305, EAX, or CCM instead.
 
-**Warning:** Most modes don't provide authentication. Use GCM or CCM instead.
+- [AES-CBC with HMAC](/docs/api/symmetric/aes-cbc-hmac/) - Legacy Encrypt-then-MAC
+- [AES-CTR](/docs/api/symmetric/aes-ctr/) - Counter mode
+- [AES-CBC](/docs/api/symmetric/aes-cbc/) - Cipher Block Chaining
 
-### GCM (Galois/Counter Mode) - See AES-GCM above ⭐
-Authenticated encryption mode
-- Provides encryption + authentication
-- Parallelizable
-- Industry standard
-
-### [AES-CBC with HMAC](/docs/api/symmetric/aes-cbc-hmac/)
-Legacy encryption mode with Encrypt-then-MAC
-- **Requires separate MAC (uses HMAC)**
-- Padding oracle vulnerabilities mitigated
-- Not parallelizable
-- Use for legacy system compatibility
-
-### [AES-CTR](/docs/api/symmetric/aes-ctr/)
-Counter mode stream cipher
-- **Requires separate MAC (use HMAC)**
-- Parallelizable
-- Random access to encrypted data
-- No padding required
-
-### [AES-CBC](/docs/api/symmetric/aes-cbc/)
-Cipher Block Chaining mode
-- **Requires separate MAC (use HMAC)**
-- Not parallelizable (encryption)
-- Requires PKCS7 padding
-- Legacy system compatibility
-
-### CCM (Counter with CBC-MAC) (coming soon)
-Authenticated encryption mode
-- Provides encryption + authentication
-- Alternative to GCM
-- Not parallelizable (slower)
-
-### ECB (Electronic Codebook) ⚠️ NEVER USE
-**Insecure:** Identical plaintexts produce identical ciphertexts
-- Not provided by library (intentionally)
-- Reveals patterns in data
-- No IV/nonce
+Don't use ECB mode; it's insecure and not recommended.
 
 ## Quick Comparison
 
@@ -111,7 +76,8 @@ Authenticated encryption mode
 | **AES-GCM** | ✅ Yes | ✅ Yes | ✅ Yes | ⭐ Primary choice |
 | ChaCha20-Poly1305 | ✅ Yes | ✅ Yes | ❌ No | Software systems |
 | XChaCha20-Poly1305 | ✅ Yes | ✅ Yes | ❌ No | Random nonces |
-| AES-CCM | ✅ Yes | ❌ No | ✅ Yes | Constrained devices |
+| AES-CCM | ✅ Yes | Limited | ✅ Yes | Wi-Fi, Bluetooth, TLS |
+| AES-EAX | ✅ Yes | Partial | ✅ Yes | Simple AEAD |
 | AES-CBC | ❌ No | ❌ No | ✅ Yes | Legacy only |
 | AES-CTR | ❌ No | ✅ Yes | ✅ Yes | With HMAC only |
 
@@ -133,43 +99,9 @@ Authenticated encryption mode
 - **Upgrading from AES-CTR+HMAC:** Migrate to AES-GCM
 - **Cannot change:** Add HMAC authentication if not present
 
-## Common Interface
-
-All authenticated encryption modes implement the `AuthenticatedSymmetricCipher` interface:
-
-```cpp
-class AuthenticatedSymmetricCipher {
-public:
-    // Set key and IV
-    void SetKeyWithIV(const byte* key, size_t keyLength,
-                      const byte* iv, size_t ivLength);
-
-    // One-shot encryption
-    void EncryptAndAuthenticate(
-        byte* ciphertext, byte* mac, size_t macSize,
-        const byte* iv, int ivLength,
-        const byte* aad, size_t aadLength,
-        const byte* message, size_t messageLength);
-
-    // One-shot decryption
-    bool DecryptAndVerify(
-        byte* message,
-        const byte* mac, size_t macSize,
-        const byte* iv, int ivLength,
-        const byte* aad, size_t aadLength,
-        const byte* ciphertext, size_t ciphertextLength);
-
-    // Query methods
-    unsigned int DigestSize() const;  // MAC tag size
-    unsigned int IVSize() const;       // IV size
-    size_t MinKeyLength() const;
-    size_t MaxKeyLength() const;
-};
-```
-
 ## Security Best Practices
 
-1. **Always use authenticated encryption** (GCM, CCM, ChaCha20-Poly1305)
+1. **Always use authenticated encryption** (AES-GCM, ChaCha20-Poly1305, XChaCha20-Poly1305, EAX, CCM)
 2. **Never reuse IVs** with the same key
 3. **Generate random IVs** using `AutoSeededRandomPool`
 4. **Use 256-bit keys** for new systems (future-proof)
@@ -178,6 +110,8 @@ public:
 7. **Use `SecByteBlock`** for keys (auto-zeroing memory)
 
 ## Performance Notes
+
+On modern x86 with AES-NI, AES-GCM is typically about 2× faster than CCM/EAX, and ChaCha20-Poly1305 is competitive when AES-NI isn't available.
 
 ### Hardware Acceleration Detection
 
@@ -193,20 +127,12 @@ void checkHardwareSupport() {
               << std::endl;
 
     // Output examples:
-    // "AES-NI"     - Intel/AMD x86-64 with AES-NI
+    // "AESNI"      - Intel/AMD x86-64 with AES-NI
     // "ARMv8"      - ARM with Crypto Extensions
     // "POWER8"     - IBM POWER8+ with AES
     // "C++"        - Software implementation
 }
 ```
-
-### Typical Performance (with AES-NI)
-
-| Operation | Speed (GB/s) | Notes |
-|-----------|--------------|-------|
-| AES-128-GCM | 2-4 | Encryption + authentication |
-| AES-256-GCM | 1.5-3 | Slightly slower than AES-128 |
-| ChaCha20-Poly1305 | 1-2 | Software implementation |
 
 ## See Also
 
