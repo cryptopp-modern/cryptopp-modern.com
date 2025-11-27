@@ -53,7 +53,7 @@ Key features:
 **Do:**
 - Use BLAKE3 for general-purpose hashing, file integrity, and content addressing
 - Use keyed mode (MAC) for message authentication with a secret key
-- Use KDF mode for deriving keys from passwords or shared secrets
+- Use KDF mode for deriving keys from high-entropy key material (e.g., shared secrets or Argon2 output)
 - Use the same instance for multiple messages (call `Restart()` between them)
 - Use hardware-accelerated builds (`AlgorithmProvider()` shows what's active)
 
