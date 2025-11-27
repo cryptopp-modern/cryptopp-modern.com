@@ -139,7 +139,7 @@ This page provides a comprehensive reference of all cryptographic algorithms ava
 | **CMAC-AES** | 128-bit | ⭐⭐⭐⭐ | Block cipher-based MAC |
 | **Poly1305** | 128-bit | ⭐⭐⭐⭐⭐ | Fast one-time MAC (use with ChaCha20) |
 | **GMAC** | 128-bit | ⭐⭐⭐⭐ | GCM authentication only |
-| **SipHash** | 64-bit | ⭐⭐⭐⭐⭐ | Hash table keys, non-cryptographic |
+| **SipHash** | 64-bit | ⭐⭐⭐⭐⭐ | Cryptographic MAC for hash-table keys / short messages |
 
 **Header files:** `hmac.h`, `cmac.h`, `poly1305.h`, `siphash.h`
 
@@ -277,6 +277,8 @@ Approved algorithms:
 - RSA (2048-bit minimum)
 - ECDSA (P-256, P-384, P-521)
 - HMAC (with approved hash functions)
+
+**Note:** cryptopp-modern implements these algorithms, but cryptopp-modern itself is **not** a FIPS 140-validated module.
 
 ### NIST Recommendations
 
