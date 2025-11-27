@@ -23,9 +23,12 @@ BLAKE3 is ideal for:
 - General-purpose hashing
 - File integrity verification
 - Content-addressed storage systems
-- Password hashing (though Argon2 is recommended for passwords)
-- Key derivation
+- Key derivation (from high-entropy secrets, not passwords)
 - Message authentication codes (MACs)
+
+{{< callout type="warning" >}}
+**Never use BLAKE3 for password hashing.** Fast hash functions allow attackers to try billions of guesses per second. Use [Argon2](/docs/algorithms/argon2/) instead - it's deliberately slow and memory-hard.
+{{< /callout >}}
 
 ## Basic Usage
 
