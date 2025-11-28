@@ -8,7 +8,7 @@ cryptopp-modern is distributed as source releases. Download the latest release p
 
 ## Build with CMake
 
-CMake is the recommended build system for cryptopp-modern. It provides IDE integration, presets for common configurations, and proper `find_package()` support for consuming projects.
+CMake is one of the supported build systems for cryptopp-modern. It provides IDE integration, presets for common configurations, and proper find_package() support for consuming projects.
 
 ### Linux / macOS
 
