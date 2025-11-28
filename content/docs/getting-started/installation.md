@@ -1,14 +1,27 @@
 ---
 title: Installation
 weight: 10
-description: "Step-by-step installation guide for cryptopp-modern on Windows, Linux, and macOS. Build from source with CMake, GCC, MinGW, Visual Studio, or use release packages."
+description: "Step-by-step installation guide for cryptopp-modern on Windows, Linux, and macOS. Build from source with CMake, GNUmakefile, Visual Studio, or nmake."
 ---
 
 cryptopp-modern is distributed as source releases. Download the latest release package, build, and install on Windows, Linux, and macOS.
 
-## Build with CMake
+## Build Systems
 
-CMake is one of the supported build systems for cryptopp-modern. It provides IDE integration, presets for common configurations, and proper find_package() support for consuming projects.
+cryptopp-modern can be built with either CMake or the provided GNUmakefile, with additional Visual Studio and nmake options on Windows. Choose the option that best fits your development environment.
+
+| Build System | Best For |
+|--------------|----------|
+| **CMake** | IDE integration, presets, `find_package()` support |
+| **GNUmakefile** | Traditional Make-based workflows, Linux/macOS |
+| **Visual Studio** | Native Windows development with full IDE |
+| **nmake** | Windows command-line builds without IDE |
+
+---
+
+## Building with CMake
+
+CMake is one of the supported build systems for cryptopp-modern. It provides IDE integration, presets for common configurations, and proper `find_package()` support for consuming projects.
 
 ### Linux / macOS
 
@@ -41,13 +54,13 @@ sudo cmake --install build/default --prefix /usr/local
 cmake --preset=msvc
 
 # Build Release configuration
-cmake --build build/msvc --config Release
+cmake --build build\msvc --config Release
 
 # Run tests
-./build/msvc/Release/cryptest.exe v
+.\build\msvc\Release\cryptest.exe v
 
 # Install (run as Administrator)
-cmake --install build/msvc --prefix C:/cryptopp
+cmake --install build\msvc --prefix C:\cryptopp
 ```
 
 ### Windows (MinGW)
@@ -58,8 +71,8 @@ cmake --install build/msvc --prefix C:/cryptopp
 # Configure with default preset
 cmake --preset=default
 
-# Build
-cmake --build build/default -j10
+# Build (use -j4 or similar if nproc is unavailable)
+cmake --build build/default -j$(nproc)
 
 # Run tests
 ./build/default/cryptest.exe v
@@ -99,7 +112,9 @@ cmake --build build
 
 ---
 
-## Build with GNUmakefile
+## Building with GNUmakefile
+
+The GNUmakefile provides a straightforward Make-based build for cryptopp-modern, suitable for classic command-line workflows and packaging scripts.
 
 ### Linux
 
@@ -137,7 +152,7 @@ sudo ldconfig
 # Extract the zip file
 # Open MinGW terminal and navigate to extracted folder
 
-# Build
+# Build (use -j4 or similar if nproc is unavailable)
 mingw32-make.exe -j$(nproc)
 
 # Test
@@ -161,18 +176,69 @@ sudo make install PREFIX=/usr/local
 ./cryptest.exe v
 ```
 
-## Advanced: Building from Git Source
+---
 
-**Note:** For most users, we recommend using the release packages above. Building from git is intended for developers who want to contribute or test unreleased changes.
+## Building with Visual Studio
 
-### Linux
+Visual Studio provides native Windows development with full IDE support, debugging, and IntelliSense.
+
+```cmd
+# Clone or download the source
+git clone https://github.com/cryptopp-modern/cryptopp-modern.git
+cd cryptopp-modern
+
+# Open cryptest.sln in Visual Studio
+# Build → Build Solution (Ctrl+Shift+B)
+```
+
+The solution includes projects for:
+- `cryptlib` - Static library
+- `cryptdll` - Dynamic library (DLL)
+- `cryptest` - Test executable
+
+---
+
+## Building with nmake
+
+nmake provides Windows command-line builds without requiring the full Visual Studio IDE, using the MSVC compiler toolchain.
+
+```cmd
+# Open "Developer Command Prompt for VS" or "x64 Native Tools Command Prompt"
+
+# Clone or download the source
+git clone https://github.com/cryptopp-modern/cryptopp-modern.git
+cd cryptopp-modern
+
+# Build
+nmake /f cryptest.nmake
+
+# Test
+cryptest.exe v
+```
+
+---
+
+## Building from Git Source
+
+**Note:** For most users, we recommend using the [release packages](#downloads). Building from git is intended for developers who want to contribute or test unreleased changes.
+
+### Linux / macOS (GNUmakefile)
 
 ```bash
 git clone https://github.com/cryptopp-modern/cryptopp-modern.git
 cd cryptopp-modern
 make -j$(nproc)
 sudo make install PREFIX=/usr/local
-sudo ldconfig
+sudo ldconfig  # Linux only
+```
+
+### Linux / macOS / Windows (CMake)
+
+```bash
+git clone https://github.com/cryptopp-modern/cryptopp-modern.git
+cd cryptopp-modern
+cmake --preset=default
+cmake --build build/default
 ```
 
 ### Windows (MinGW)
@@ -180,24 +246,7 @@ sudo ldconfig
 ```bash
 git clone https://github.com/cryptopp-modern/cryptopp-modern.git
 cd cryptopp-modern
-mingw32-make.exe -j$(nproc)
-```
-
-### Windows (Visual Studio)
-
-```cmd
-git clone https://github.com/cryptopp-modern/cryptopp-modern.git
-cd cryptopp-modern
-# Open cryptest.sln in Visual Studio
-# Build → Build Solution (Ctrl+Shift+B)
-```
-
-### Windows (Command Line nmake)
-
-```cmd
-git clone https://github.com/cryptopp-modern/cryptopp-modern.git
-cd cryptopp-modern
-nmake /f cryptest.nmake
+mingw32-make.exe -j10
 ```
 
 ## Prerequisites
@@ -234,21 +283,19 @@ brew install cmake ninja  # For CMake builds
 
 ### Windows
 
-**Option 1: MinGW + CMake (Recommended)**
-- [MinGW-w64](https://www.mingw-w64.org/downloads/)
-- [CMake](https://cmake.org/download/)
-- [Ninja](https://ninja-build.org/) (or use `choco install ninja`)
+**For CMake builds:**
+- [CMake](https://cmake.org/download/) 3.20 or higher
+- [Ninja](https://ninja-build.org/) (recommended generator)
+- Compiler: [MinGW-w64](https://www.mingw-w64.org/downloads/) or Visual Studio 2022
 
-**Option 2: Visual Studio 2022 + CMake**
-- Visual Studio 2022 with "Desktop development with C++" workload
-- CMake (included with Visual Studio or install separately)
-
-**Option 3: MinGW with GNUmakefile**
+**For GNUmakefile builds:**
 - [MinGW-w64](https://www.mingw-w64.org/downloads/)
 
-**Option 4: MSVC Command Line**
-- Visual Studio Build Tools
-- nmake
+**For Visual Studio builds:**
+- Visual Studio 2022 (or 2019) with "Desktop development with C++" workload
+
+**For nmake builds:**
+- Visual Studio Build Tools (includes nmake and MSVC compiler)
 
 ## Build Configuration
 
@@ -325,7 +372,7 @@ g++ -std=c++11 myapp.cpp -I/usr/local/include -L/usr/local/lib -lcryptopp
 g++ -std=c++11 myapp.cpp -I/usr/local/include -L/usr/local/lib -lcryptopp -static
 ```
 
-### CMake (Recommended)
+### CMake (find_package)
 
 If you built cryptopp-modern with CMake and installed it, you can use `find_package()`:
 
@@ -333,7 +380,6 @@ If you built cryptopp-modern with CMake and installed it, you can use `find_pack
 cmake_minimum_required(VERSION 3.20)
 project(MyApp)
 
-# Find cryptopp-modern
 find_package(cryptopp-modern REQUIRED)
 
 add_executable(myapp main.cpp)
@@ -384,8 +430,12 @@ For advanced build options including sanitisers, code coverage, SIMD feature fla
 
 ## Downloads
 
-- **Latest Release:** [cryptopp-modern-2025.11.0](https://github.com/cryptopp-modern/cryptopp-modern/releases/latest)
+- **Latest Release:** [GitHub Releases](https://github.com/cryptopp-modern/cryptopp-modern/releases/latest)
 - **All Releases:** [Release History](https://github.com/cryptopp-modern/cryptopp-modern/releases)
+
+{{< callout type="info" >}}
+The examples on this page use version `2025.11.0`. Replace with the current release version as needed.
+{{< /callout >}}
 
 ## Next Steps
 
