@@ -6,7 +6,7 @@ description: "Step-by-step installation guide for cryptopp-modern on Windows, Li
 
 cryptopp-modern is distributed as source releases. Download the latest release package, build, and install on Windows, Linux, and macOS.
 
-## Build with CMake (Recommended)
+## Build with CMake
 
 CMake is the recommended build system for cryptopp-modern. It provides IDE integration, presets for common configurations, and proper `find_package()` support for consuming projects.
 
