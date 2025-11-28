@@ -412,7 +412,7 @@ Base64URLEncoder encoder(new StringSink(output), false);
 | 63rd char | `/` | `_` |
 | Padding | Required `=` | Optional |
 
-## Padding Behavior
+## Padding Behaviour
 
 Base64 uses `=` for padding to align output to 4-character boundaries:
 

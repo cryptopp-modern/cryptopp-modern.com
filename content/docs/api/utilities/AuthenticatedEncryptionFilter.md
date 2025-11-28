@@ -126,7 +126,7 @@ AuthenticatedDecryptionFilter(
 |-----------|------|-------------|
 | `cipher` | `AuthenticatedSymmetricCipher&` | AEAD cipher |
 | `attachment` | `BufferedTransformation*` | Next filter |
-| `flags` | `word32` | Behavior flags |
+| `flags` | `word32` | Behaviour flags |
 | `tagSize` | `int` | Expected tag size |
 
 ### Flags

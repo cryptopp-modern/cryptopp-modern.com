@@ -15,7 +15,7 @@ A MAC is like a "keyed checksum" - it uses a secret key to produce an authentica
 ### [HMAC](/docs/api/mac/hmac/) ⭐ Recommended
 Hash-based Message Authentication Code
 - Uses any hash function (HMAC-SHA256, HMAC-SHA512, HMAC-BLAKE3)
-- RFC 2104 standardized
+- RFC 2104 standardised
 - Fast and secure
 - Most widely used MAC
 
@@ -28,7 +28,7 @@ Hash-based Message Authentication Code
 ### [CMAC](/docs/api/mac/cmac/)
 Cipher-based Message Authentication Code
 - Uses block ciphers (AES-CMAC)
-- NIST SP 800-38B standardized
+- NIST SP 800-38B standardised
 - Good alternative to HMAC
 
 ### [Poly1305](/docs/api/mac/poly1305/)
@@ -45,8 +45,8 @@ Universal hash function MAC
 | **HMAC-BLAKE3** | Very Fast | 256-bit | High throughput | ⭐ Performance |
 | **HMAC-SHA512** | Fast | 512-bit | High security | ⭐ Long-term |
 | CMAC-AES | Medium | 128-bit | Block cipher preference | Alternative |
-| Poly1305 | Very Fast | 128-bit | With ChaCha20 | Specialized |
-| GMAC | Very Fast | 128-bit | With AES-GCM | Specialized |
+| Poly1305 | Very Fast | 128-bit | With ChaCha20 | Specialised |
+| GMAC | Very Fast | 128-bit | With AES-GCM | Specialised |
 
 ## Common Interface
 
@@ -315,7 +315,7 @@ Instead of separate encryption + MAC, use authenticated encryption:
 
 **Benefits:**
 - Simpler API (one operation)
-- Faster (optimized together)
+- Faster (optimised together)
 - Harder to misuse (correct by construction)
 
 ## See Also

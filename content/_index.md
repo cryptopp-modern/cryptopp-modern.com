@@ -13,7 +13,7 @@ layout: hextra-home
 
 <div class="hx-mb-12">
 {{< hextra/hero-subtitle >}}
-  Actively maintained fork of Crypto++ with modern algorithms,&nbsp;<br class="sm:hx-block hx-hidden" />better organization, and regular security updates.
+  Actively maintained fork of Crypto++ with modern algorithms,&nbsp;<br class="sm:hx-block hx-hidden" />better organisation, and regular security updates.
 {{< /hextra/hero-subtitle >}}
 </div>
 
@@ -40,8 +40,8 @@ layout: hextra-home
     subtitle="Full backward compatibility with Crypto++ 8.9.0. Same namespace, same APIs. Easy migration."
   >}}
   {{< hextra/feature-card
-    title="🏗️ Better Organization"
-    subtitle="Source files organized in categorized directories. Easier to navigate and understand."
+    title="🏗️ Better Organisation"
+    subtitle="Source files organised in categorised directories. Easier to navigate and understand."
   >}}
   {{< hextra/feature-card
     title="✅ Thoroughly Tested"
@@ -81,7 +81,7 @@ int main() {
 
 ## What's New in 2025.12.0
 
-- **Complete reorganization** - 204 source files organized into logical categories
+- **Complete reorganisation** - 204 source files organised into logical categories
 - **Multi-platform CI/CD** - Automated testing on all major platforms
 - **Updated build systems** - GNUmakefile, Visual Studio, and nmake all updated
 - **Backward compatible** - Drop-in replacement maintaining the same include structure

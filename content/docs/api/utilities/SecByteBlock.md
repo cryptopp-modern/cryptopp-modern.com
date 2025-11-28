@@ -86,7 +86,7 @@ SecByteBlock key;  // Empty, size = 0
 SecByteBlock(size_t size);
 ```
 
-Create SecByteBlock with specified size. Memory is **not** initialized.
+Create SecByteBlock with specified size. Memory is **not** initialised.
 
 **Parameters:**
 - `size` - Size in bytes
@@ -94,7 +94,7 @@ Create SecByteBlock with specified size. Memory is **not** initialized.
 **Example:**
 
 ```cpp
-SecByteBlock key(32);  // 32 bytes, uninitialized
+SecByteBlock key(32);  // 32 bytes, uninitialised
 ```
 
 #### Constructor with Size and Value
@@ -103,7 +103,7 @@ SecByteBlock key(32);  // 32 bytes, uninitialized
 SecByteBlock(size_t size, byte value);
 ```
 
-Create SecByteBlock and initialize all bytes to a value.
+Create SecByteBlock and initialise all bytes to a value.
 
 **Parameters:**
 - `size` - Size in bytes
@@ -279,7 +279,7 @@ Change size of SecByteBlock.
 **Parameters:**
 - `newSize` - New size in bytes
 
-**Note:** If shrinking, removed bytes are zeroed. If growing, new bytes are uninitialized.
+**Note:** If shrinking, removed bytes are zeroed. If growing, new bytes are uninitialised.
 
 **Example:**
 
@@ -604,7 +604,7 @@ SecByteBlock automatically zeroes memory:
 ```cpp
 ~SecByteBlock() {
     // Memory is overwritten with zeros before deallocation
-    // Uses secure memset that can't be optimized away
+    // Uses secure memset that can't be optimised away
 }
 ```
 

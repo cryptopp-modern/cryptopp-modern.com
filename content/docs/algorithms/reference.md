@@ -18,7 +18,7 @@ This page provides a comprehensive reference of all cryptographic algorithms ava
 | **SHA3-256** | 256-bit | ⭐⭐ | ⭐⭐⭐⭐⭐ | NIST standard, alternative to SHA-2 |
 | **SHA3-512** | 512-bit | ⭐⭐ | ⭐⭐⭐⭐⭐ | High security NIST standard |
 | **BLAKE2b** | 512-bit (variable) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | High performance alternative to SHA-2 |
-| **BLAKE2s** | 256-bit (variable) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Optimized for 32-bit systems |
+| **BLAKE2s** | 256-bit (variable) | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Optimised for 32-bit systems |
 
 ### Legacy (Compatibility Only)
 
@@ -65,7 +65,7 @@ This page provides a comprehensive reference of all cryptographic algorithms ava
 | Cipher | Key Sizes | Block Size | Speed | Security | Use Case |
 |--------|-----------|------------|-------|----------|----------|
 | **AES** | 128, 192, 256-bit | 128-bit | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Industry standard, FIPS approved |
-| **ChaCha20** | 256-bit | Stream | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Modern stream cipher, mobile-optimized |
+| **ChaCha20** | 256-bit | Stream | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Modern stream cipher, mobile-optimised |
 | **Serpent** | 128, 192, 256-bit | 128-bit | ⭐⭐ | ⭐⭐⭐⭐⭐ | High security margin |
 | **Twofish** | 128, 192, 256-bit | 128-bit | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | AES finalist |
 | **Camellia** | 128, 192, 256-bit | 128-bit | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ISO/IEC 18033-3 standard |
@@ -78,15 +78,15 @@ This page provides a comprehensive reference of all cryptographic algorithms ava
 | **GCM** | Built-in | Fast authenticated encryption (AES-GCM, recommended) |
 | **CCM** | Built-in | Constrained environments |
 | **EAX** | Built-in | Simple authenticated encryption |
-| **ChaCha20-Poly1305** | Built-in | Modern AEAD, mobile-optimized |
+| **ChaCha20-Poly1305** | Built-in | Modern AEAD, mobile-optimised |
 
 ### Classical Modes (Require Separate MAC)
 
 | Mode | Type | Use Case |
 |------|------|----------|
 | **CBC** | Block | Traditional encryption (use with HMAC) |
-| **CTR** | Stream | Parallelizable encryption |
-| **CFB** | Stream | Self-synchronizing stream cipher |
+| **CTR** | Stream | Parallelisable encryption |
+| **CFB** | Stream | Self-synchronising stream cipher |
 | **OFB** | Stream | Stream cipher mode |
 | **ECB** | Block | ⚠️ Insecure - do not use |
 

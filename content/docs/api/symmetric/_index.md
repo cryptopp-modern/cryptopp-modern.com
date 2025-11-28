@@ -46,7 +46,7 @@ Counter with CBC-MAC mode
 
 ### [AES-EAX](/docs/api/symmetric/aes-eax/)
 EAX authenticated encryption mode
-- Simple, well-analyzed construction
+- Simple, well-analysed construction
 - Built from CTR mode + CMAC
 - Flexible nonce length (any size)
 - Good choice when GCM hardware unavailable

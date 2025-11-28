@@ -8,7 +8,7 @@ weight: 5
 **Since:** Crypto++ 5.6.4
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 
-BLAKE2 is a cryptographic hash function faster than MD5, SHA-1, SHA-2, and SHA-3, yet at least as secure as SHA-3. It comes in two variants: BLAKE2b (optimized for 64-bit platforms) and BLAKE2s (optimized for 8-32 bit platforms).
+BLAKE2 is a cryptographic hash function faster than MD5, SHA-1, SHA-2, and SHA-3, yet at least as secure as SHA-3. It comes in two variants: BLAKE2b (optimised for 64-bit platforms) and BLAKE2s (optimised for 8-32 bit platforms).
 
 ## Quick Example
 
@@ -51,7 +51,7 @@ StringSource(message, true,
 
 | Feature | BLAKE2b | BLAKE2s |
 |---------|---------|---------|
-| **Optimized for** | 64-bit CPUs | 8-32 bit CPUs |
+| **Optimised for** | 64-bit CPUs | 8-32 bit CPUs |
 | **Output size** | 1-64 bytes (default 64) | 1-32 bytes (default 32) |
 | **Block size** | 128 bytes | 64 bytes |
 | **Speed (64-bit)** | ~1 GB/s | ~500 MB/s |

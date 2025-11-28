@@ -3,7 +3,7 @@ title: About
 description: "About cryptopp-modern - actively maintained fork of Crypto++ 8.9.0 with modern algorithms, calendar versioning, and regular security updates. Open source under Boost License."
 ---
 
-cryptopp-modern is an actively maintained fork of Crypto++ 8.9.0, providing a modern cryptographic library with contemporary algorithms, better code organization, and regular security updates.
+cryptopp-modern is an actively maintained fork of Crypto++ 8.9.0, providing a modern cryptographic library with contemporary algorithms, better code organisation, and regular security updates.
 
 ## Project Overview
 
@@ -11,7 +11,7 @@ cryptopp-modern builds upon the solid foundation of Wei Dai's Crypto++ library, 
 
 ### Current Version
 
-**2025.12.0 (Release Candidate)** - Complete source reorganization with 204 files organized into logical categories.
+**2025.12.0 (Release Candidate)** - Complete source reorganisation with 204 files organised into logical categories.
 
 **2025.11.0** - Stable release with BLAKE3 and Argon2 support.
 
@@ -35,10 +35,10 @@ The fork actively integrates modern cryptographic algorithms as they become stan
 - Argon2 (RFC 9106 password hashing)
 - Future additions as cryptographic best practices evolve
 
-### Better Organization
+### Better Organisation
 
 **Source Code Structure:**
-Version 2025.12.0 reorganizes 204+ source files into categorized directories (core, hash, symmetric, pubkey, kdf, etc.), making the codebase easier to navigate while maintaining backward compatibility through a flat include structure.
+Version 2025.12.0 reorganises 204+ source files into categorised directories (core, hash, symmetric, pubkey, kdf, etc.), making the codebase easier to navigate while maintaining backward compatibility through a flat include structure.
 
 ## Key Features
 
@@ -91,7 +91,7 @@ Regular releases with security patches, bug fixes, and new features. Responsive 
 
 ### Quality Code
 
-Well-organized, maintainable code structure. Comprehensive testing across platforms.
+Well-organised, maintainable code structure. Comprehensive testing across platforms.
 
 ### Open Source
 
@@ -109,7 +109,7 @@ Free and open source under the Boost Software License 1.0. No restrictions on co
 - Argon2 implementation included
 
 **December 2025**: cryptopp-modern 2025.12.0 (RC)
-- Complete source reorganization
+- Complete source reorganisation
 - Improved build systems
 - Enhanced CI/CD pipeline
 
@@ -131,7 +131,7 @@ We welcome contributions from the community:
 - **New Algorithms**: Propose and implement modern cryptographic algorithms
 - **Documentation**: Improve documentation and examples
 - **Testing**: Test on different platforms and configurations
-- **Performance**: Optimize existing implementations
+- **Performance**: Optimise existing implementations
 
 ### Contribution Guidelines
 
@@ -152,7 +152,7 @@ cryptopp-modern is a fork, not a replacement of Crypto++. We maintain deep respe
 - **Version numbering**: Calendar versioning vs traditional
 - **Release schedule**: Regular predictable releases
 - **New algorithms**: BLAKE3, Argon2, and future additions
-- **Source organization**: Categorized directory structure
+- **Source organisation**: Categorised directory structure
 
 ### Similarities
 
@@ -231,7 +231,7 @@ cryptopp-modern implements numerous cryptographic standards:
 ### Near Term
 
 - Additional modern algorithms as standards emerge
-- Performance optimizations
+- Performance optimisations
 - Expanded documentation
 - More code examples
 

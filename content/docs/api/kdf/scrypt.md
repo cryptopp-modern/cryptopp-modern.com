@@ -402,7 +402,7 @@ int main() {
 
 - **Memory-hard:** Requires large amounts of memory, making parallel attacks expensive
 - **Sequential memory access:** Designed to thwart time-memory trade-offs
-- **Based on Salsa20/8:** Uses well-analyzed cryptographic primitives
+- **Based on Salsa20/8:** Uses well-analysed cryptographic primitives
 - **Standard:** RFC 7914
 
 ### Security Notes

@@ -155,7 +155,7 @@ argon2.DeriveKey(
 
 See the [Argon2 documentation](../algorithms/argon2) for details.
 
-## Source Code Organization
+## Source Code Organisation
 
 The source code structure has been improved in cryptopp-modern 2025.12.0:
 
@@ -398,8 +398,8 @@ If you encounter migration issues:
 
 ### Performance
 - BLAKE3: Significantly faster than SHA-2
-- Continued optimizations
-- Better multi-core utilization
+- Continued optimisations
+- Better multi-core utilisation
 
 ### Maintenance
 - Active development
@@ -418,6 +418,6 @@ Migration from Crypto++ 8.9.0 to cryptopp-modern is straightforward:
 1. Most code works unchanged
 2. Update version parsing if needed
 3. Optionally adopt new features (BLAKE3, Argon2)
-4. Enjoy improved organization and active maintenance
+4. Enjoy improved organisation and active maintenance
 
 The effort is minimal, and the benefits are substantial.

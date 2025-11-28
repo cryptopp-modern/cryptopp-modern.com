@@ -9,7 +9,7 @@ weight: 2
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 **Inherits from:** `KeyDerivationFunction`
 
-HKDF (HMAC-based Key Derivation Function) is a simple and well-analyzed key derivation function defined in RFC 5869. It uses HMAC to extract entropy from key material and expand it into multiple cryptographic keys. HKDF is the recommended KDF for most applications.
+HKDF (HMAC-based Key Derivation Function) is a simple and well-analysed key derivation function defined in RFC 5869. It uses HMAC to extract entropy from key material and expand it into multiple cryptographic keys. HKDF is the recommended KDF for most applications.
 
 ## Quick Example
 
@@ -415,7 +415,7 @@ int main() {
 }
 ```
 
-## Salt Behavior
+## Salt Behaviour
 
 HKDF has special handling for NULL vs empty salt:
 

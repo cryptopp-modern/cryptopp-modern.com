@@ -91,7 +91,7 @@ RSA private key for decryption and signing.
 RSA::PrivateKey();
 ```
 
-Create uninitialized private key.
+Create uninitialised private key.
 
 #### Constructor from Parameters
 

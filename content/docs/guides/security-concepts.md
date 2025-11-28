@@ -263,7 +263,7 @@ void deriveKeys(const CryptoPP::SecByteBlock& masterKey,
 
 ```cpp
 // Create with specific size
-CryptoPP::SecByteBlock key(32);  // 32 bytes, uninitialized
+CryptoPP::SecByteBlock key(32);  // 32 bytes, uninitialised
 
 // Create empty, resize later
 CryptoPP::SecByteBlock buffer;

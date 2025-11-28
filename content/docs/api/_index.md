@@ -13,7 +13,7 @@ High-performance cryptographic hash functions for data integrity and digital sig
 - [BLAKE3](/docs/api/hash/blake3/) - Fastest modern hash function with parallelism support
 - [BLAKE2b / BLAKE2s](/docs/api/hash/blake2/) - High-speed hash functions (RFC 7693)
 - [SHA-256](/docs/api/hash/sha256/) - Standard hash function with hardware acceleration
-- [SHA-512](/docs/api/hash/sha512/) - 64-bit optimized hash for high security
+- [SHA-512](/docs/api/hash/sha512/) - 64-bit optimised hash for high security
 - [SHA-3](/docs/api/hash/sha3/) - FIPS 202 Keccak-based hash function
 
 ## Password Hashing & Key Derivation

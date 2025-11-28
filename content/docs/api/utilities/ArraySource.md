@@ -39,7 +39,7 @@ ArraySource(input, sizeof(input), true,
 {{< /callout >}}
 
 {{< callout type="warning" title="Avoid" >}}
-- Don't use undersized output buffers (undefined behavior)
+- Don't use undersized output buffers (undefined behaviour)
 - Don't use for variable-length output (use StringSink instead)
 - Don't forget to check actual bytes written
 {{< /callout >}}
@@ -480,7 +480,7 @@ void safeArrayOperation(const byte* input, size_t inputLen,
 }
 ```
 
-## ArraySink Overflow Behavior
+## ArraySink Overflow Behaviour
 
 If the output exceeds the buffer size:
 

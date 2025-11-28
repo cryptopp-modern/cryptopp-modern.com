@@ -102,7 +102,7 @@ void SetKeyWithIV(const byte* key, size_t keyLen,
                   const byte* iv, size_t ivLen);
 ```
 
-Initialize with key and nonce.
+Initialise with key and nonce.
 
 **Parameters:**
 - `key` - Secret key (32 bytes)
@@ -177,7 +177,7 @@ void SetKeyWithIV(const byte* key, size_t keyLen,
                   const byte* iv, size_t ivLen);
 ```
 
-Initialize with key and nonce (same as encryption).
+Initialise with key and nonce (same as encryption).
 
 #### DecryptAndVerify()
 
@@ -412,8 +412,8 @@ int main() {
 | Platform | Speed (MB/s) | Notes |
 |----------|--------------|-------|
 | **Software** | 400-800 | Pure software implementation |
-| **SSSE3** | 600-1200 | With SSSE3 optimizations |
-| **AVX2** | 800-1600 | With AVX2 optimizations |
+| **SSSE3** | 600-1200 | With SSSE3 optimisations |
+| **AVX2** | 800-1600 | With AVX2 optimisations |
 | **ARM NEON** | 500-1000 | ARM processors |
 
 ### Comparison with AES-GCM

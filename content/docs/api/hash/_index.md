@@ -18,8 +18,8 @@ Cryptographic hash functions for data integrity, digital signatures, and content
 
 ### [BLAKE2b / BLAKE2s](/docs/api/hash/blake2/)
 High-speed hash functions (RFC 7693)
-- BLAKE2b: optimized for 64-bit (up to 512-bit output)
-- BLAKE2s: optimized for 32-bit (up to 256-bit output)
+- BLAKE2b: optimised for 64-bit (up to 512-bit output)
+- BLAKE2s: optimised for 32-bit (up to 256-bit output)
 - Built-in keyed mode (MAC without HMAC)
 - Faster than MD5/SHA-1/SHA-2
 

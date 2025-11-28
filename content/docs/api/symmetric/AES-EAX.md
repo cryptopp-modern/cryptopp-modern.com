@@ -83,7 +83,7 @@ int main() {
 | **Simplicity** | Simple | Complex | Moderate |
 
 **Choose EAX when:**
-- You need a simple, well-analyzed mode
+- You need a simple, well-analysed mode
 - Variable-length nonces are useful
 - Patent concerns exist (historically relevant)
 - GCM hardware acceleration isn't available

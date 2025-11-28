@@ -205,7 +205,7 @@ CryptoPP::SHA3_512 hash512;  // 512-bit output
 
 ## BLAKE2
 
-BLAKE2 comes in two variants: BLAKE2b (optimized for 64-bit) and BLAKE2s (optimized for 32-bit).
+BLAKE2 comes in two variants: BLAKE2b (optimised for 64-bit) and BLAKE2s (optimised for 32-bit).
 
 ### BLAKE2b
 
@@ -240,7 +240,7 @@ int main() {
 
 int main() {
     CryptoPP::BLAKE2s hash;
-    std::string message = "BLAKE2s is optimized for 32-bit";
+    std::string message = "BLAKE2s is optimised for 32-bit";
     std::string digest;
 
     CryptoPP::StringSource(message, true,
@@ -486,7 +486,7 @@ Approximate throughput on modern x86_64 CPU (single-threaded):
 | Hash Function | Speed (MB/s) | Notes |
 |---------------|--------------|-------|
 | BLAKE3 | 2000-3000 | Multi-core: 10+ GB/s |
-| BLAKE2b | 800-1000 | 64-bit optimized |
+| BLAKE2b | 800-1000 | 64-bit optimised |
 | SHA-256 (AES-NI) | 400-600 | With hardware support |
 | SHA-512 | 600-800 | Faster on 64-bit |
 | SHA3-256 | 200-300 | Different construction |

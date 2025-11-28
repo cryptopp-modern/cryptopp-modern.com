@@ -11,12 +11,12 @@ Argon2 is the winner of the Password Hashing Competition (2015) and is specified
 Argon2 provides strong protection against:
 
 - **Brute-force attacks**: Configurable memory and time costs
-- **GPU/ASIC attacks**: Memory-hard algorithm makes specialized hardware less effective
+- **GPU/ASIC attacks**: Memory-hard algorithm makes specialised hardware less effective
 - **Side-channel attacks**: Argon2id variant provides resistance to timing attacks
 - **Rainbow tables**: Built-in salt support
 
 Key features:
-- **RFC 9106 compliant**: Standardized password hashing
+- **RFC 9106 compliant**: Standardised password hashing
 - **Three variants**: Argon2d, Argon2i, Argon2id
 - **Tunable parameters**: Adjust memory, iterations, and parallelism
 - **Future-proof**: Can increase difficulty as hardware improves
@@ -24,17 +24,17 @@ Key features:
 ## Variants
 
 ### Argon2d
-- **Optimized for**: Maximum resistance to GPU/ASIC attacks
+- **Optimised for**: Maximum resistance to GPU/ASIC attacks
 - **Use when**: You need maximum security and side-channel attacks are not a concern
 - **Memory access**: Data-dependent (faster but potentially vulnerable to side-channels)
 
 ### Argon2i
-- **Optimized for**: Resistance to side-channel attacks
+- **Optimised for**: Resistance to side-channel attacks
 - **Use when**: Running in environments where timing attacks are possible
 - **Memory access**: Data-independent (slower but resistant to timing attacks)
 
 ### Argon2id (Recommended)
-- **Optimized for**: Balance of both protections
+- **Optimised for**: Balance of both protections
 - **Use when**: General password hashing (most common use case)
 - **Memory access**: Hybrid approach (first half Argon2i, second half Argon2d)
 - **Best choice**: Recommended by RFC 9106 for password hashing

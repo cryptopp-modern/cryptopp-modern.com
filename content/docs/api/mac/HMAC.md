@@ -112,7 +112,7 @@ hmac.SetKey(key, sizeof(key));
 HMAC(const byte* key, size_t length);
 ```
 
-Create and initialize HMAC with a key.
+Create and initialise HMAC with a key.
 
 **Parameters:**
 - `key` - Secret key for HMAC
