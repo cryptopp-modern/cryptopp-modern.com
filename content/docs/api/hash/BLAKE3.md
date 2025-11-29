@@ -8,7 +8,7 @@ weight: 1
 **Since:** cryptopp-modern 2025.11.0
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 
-Fast cryptographic hash function based on Bao and BLAKE2. BLAKE3 is designed for high performance and supports parallel hashing, tree hashing, keyed hashing (MAC), and key derivation. The cryptopp-modern implementation includes SIMD acceleration with automatic runtime CPU detection (AVX2, SSE4.1, or C++ fallback).
+Fast cryptographic hash function based on Bao and BLAKE2. BLAKE3 is designed for high performance and supports parallel hashing, tree hashing, keyed hashing (MAC), and key derivation. The cryptopp-modern implementation includes SIMD acceleration with automatic runtime CPU detection (AVX2, SSE4.1, NEON, or C++ fallback).
 
 ## Quick Example
 
@@ -21,16 +21,16 @@ int main() {
     using namespace CryptoPP;
 
     BLAKE3 hash;
-    std::string message = "Hello, World!";
+    std::string message = "abc";
     std::string digest, hexOutput;
 
     hash.Update((const byte*)message.data(), message.size());
     digest.resize(hash.DigestSize());
-    hash.TruncatedFinal((byte*)&digest[0], digest.size());
+    hash.Final((byte*)&digest[0]);
 
     StringSource(digest, true, new HexEncoder(new StringSink(hexOutput)));
     std::cout << "BLAKE3: " << hexOutput << std::endl;
-    // Expected: d74981efa70a0c880b8d8c1985d075dbcbf679b99a5f9914e5aaf96b831a9e24
+    // Expected: 6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85
 
     return 0;
 }
@@ -42,7 +42,7 @@ BLAKE3 is a cryptographic hash function that is significantly faster than MD5, S
 
 Key features:
 - **Extremely fast** - Outperforms all standard hash functions
-- **SIMD accelerated** - Runtime detection of AVX2 (8-way parallel), SSE4.1 (4-way parallel), or C++ fallback
+- **SIMD accelerated** - Runtime detection of AVX2 (8-way parallel), SSE4.1 (4-way parallel), NEON (ARM), or C++ fallback
 - **Parallelisable** - Merkle tree structure enables parallel chunk processing
 - **Extendable output** - Can generate hashes of any length
 - **Multiple modes** - Standard hash, keyed hash (MAC), or KDF
@@ -173,7 +173,7 @@ std::string AlgorithmProvider() const
 ```
 Returns the implementation provider, indicating if hardware acceleration is used.
 
-**Returns:** String like `"C++"`, `"SSE4.1"`, `"AVX2"`, `"AVX-512"`, or `"NEON"`.
+**Returns:** One of `"C++"`, `"SSE4.1"`, `"AVX2"`, or `"NEON"` (on ARM platforms).
 
 **Thread Safety:** Thread-safe (const method).
 
@@ -242,6 +242,23 @@ Finalizes the hash and writes the output. After calling this, the object is rese
 
 ---
 
+### `Final()`
+```cpp
+void Final(byte* hash)
+```
+Finalizes the hash and writes the default digest size (32 bytes) to the output buffer. Equivalent to `TruncatedFinal(hash, DigestSize())`.
+
+**Parameters:**
+- `hash` - Buffer to receive hash output (must be at least `DigestSize()` bytes)
+
+**Exceptions:** None
+
+**Thread Safety:** Not thread-safe.
+
+**Note:** For the default 32-byte output, `Final()` is simpler than `TruncatedFinal()`. Use `TruncatedFinal()` when you need a different output size (XOF mode).
+
+---
+
 ### `Restart()`
 ```cpp
 void Restart()
@@ -256,11 +273,11 @@ Resets the hash to its initial state, allowing reuse of the object. Preserves th
 ```cpp
 BLAKE3 hash;
 hash.Update(...);
-hash.TruncatedFinal(...);  // Implicitly calls Restart()
+hash.Final(...);  // Implicitly calls Restart()
 
 // Can immediately reuse:
 hash.Update(...);
-hash.TruncatedFinal(...);
+hash.Final(...);
 ```
 
 ## Usage Modes
@@ -282,9 +299,7 @@ int main() {
 
     hash.Update((const CryptoPP::byte*)message.data(), message.size());
     digest.resize(hash.DigestSize());
-    hash.TruncatedFinal((CryptoPP::byte*)&digest[0], digest.size());
-
-    // Expected: a87e71ab2c6f926d6568cc0d70d7c0c8691ffb9567877e265f546e8f1e1ec1ca
+    hash.Final((CryptoPP::byte*)&digest[0]);
 
     std::string hexOutput;
     CryptoPP::StringSource(digest, true,
@@ -335,7 +350,7 @@ int main() {
 
     mac.Update((const byte*)message.data(), message.size());
     tag.resize(mac.DigestSize());
-    mac.TruncatedFinal((byte*)&tag[0], tag.size());
+    mac.Final((byte*)&tag[0]);
 
     // Send message + tag to recipient
     // Recipient verifies by recomputing MAC with same key
@@ -354,7 +369,7 @@ int main() {
 BLAKE3 verifyMac(key, key.size());
 verifyMac.Update((const byte*)receivedMessage.data(), receivedMessage.size());
 std::string computedTag(32, '\0');
-verifyMac.TruncatedFinal((byte*)&computedTag[0], 32);
+verifyMac.Final((byte*)&computedTag[0]);
 
 // Use constant-time comparison for MACs
 if (VerifyBufsEqual(
@@ -389,13 +404,13 @@ int main() {
     BLAKE3 kdfEncrypt("MyApplication 2025-11-25 Encryption Key", 32);
     kdfEncrypt.Update((const byte*)inputKeyMaterial.data(), inputKeyMaterial.size());
     std::string encryptionKey(32, '\0');
-    kdfEncrypt.TruncatedFinal((byte*)&encryptionKey[0], 32);
+    kdfEncrypt.Final((byte*)&encryptionKey[0]);
 
     // Derive MAC key (different context = different output)
     BLAKE3 kdfMac("MyApplication 2025-11-25 MAC Key", 32);
     kdfMac.Update((const byte*)inputKeyMaterial.data(), inputKeyMaterial.size());
     std::string macKey(32, '\0');
-    kdfMac.TruncatedFinal((byte*)&macKey[0], 32);
+    kdfMac.Final((byte*)&macKey[0]);
 
     // encryptionKey and macKey are now independent, derived keys
     std::cout << "Derived two independent keys from one secret" << std::endl;
@@ -549,8 +564,7 @@ Use these to verify your BLAKE3 implementation:
 | Mode | Input | Key/Context | Output (first 32 bytes, hex) |
 |------|-------|-------------|------------------------------|
 | Basic | `""` (empty) | - | `af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262` |
-| Basic | `"Hello, World!"` | - | `d74981efa70a0c880b8d8c1985d075dbcbf679b99a5f9914e5aaf96b831a9e24` |
-| Basic | `"The quick brown fox jumps over the lazy dog"` | - | `a87e71ab2c6f926d6568cc0d70d7c0c8691ffb9567877e265f546e8f1e1ec1ca` |
+| Basic | `"abc"` | - | `6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85` |
 | Keyed | `"message"` | 32-byte zero key | `03bf25008eb0c585f9ad2d89621b7e3d1f5b5b40e46fca0e4920f3d02e00ef97` |
 | KDF | `"input"` | Context: `"test"` | `ca002330e69d3e6b84a46a56a6533fd79d51d97a3bb7cad618a1ea7a851e9d21` |
 

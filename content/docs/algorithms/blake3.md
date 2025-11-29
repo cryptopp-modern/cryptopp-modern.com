@@ -28,7 +28,7 @@ BLAKE3 is ideal for:
 - Message authentication codes (MACs)
 
 {{< callout type="warning" >}}
-**Never use BLAKE3 for password hashing.** Fast hash functions allow attackers to try billions of guesses per second. Use [Argon2](/docs/algorithms/argon2/) instead - it's deliberately slow and memory-hard.
+**Never use BLAKE3 for password hashing.** Fast hash functions allow attackers to try billions of guesses per second. Use [Argon2id](/docs/algorithms/argon2/) instead - it's deliberately slow and memory-hard.
 {{< /callout >}}
 
 ## SIMD Acceleration
@@ -54,7 +54,7 @@ You can verify which SIMD implementation is being used at runtime:
 int main() {
     CryptoPP::BLAKE3 hash;
     std::cout << "BLAKE3 provider: " << hash.AlgorithmProvider() << std::endl;
-    // Output: "AVX2", "SSE4.1", or "C++"
+    // Output: "AVX2", "SSE4.1", "NEON", or "C++"
     return 0;
 }
 ```
@@ -204,27 +204,28 @@ BLAKE3 can be used as a message authentication code:
 ```cpp
 #include <cryptopp/blake3.h>
 #include <cryptopp/hex.h>
+#include <cryptopp/osrng.h>
 #include <cryptopp/secblock.h>
 #include <iostream>
 
 int main() {
-    // 32-byte key for BLAKE3
+    // Generate a random 32-byte key
+    CryptoPP::AutoSeededRandomPool rng;
     CryptoPP::SecByteBlock key(32);
-    // In practice, use a proper random key
-    memset(key, 0x42, key.size());
+    rng.GenerateBlock(key, key.size());
 
-    CryptoPP::BLAKE3 hash;
-    hash.SetKey(key, key.size());
+    // Create keyed BLAKE3 (MAC mode) via constructor
+    CryptoPP::BLAKE3 mac(key, key.size());
 
     std::string message = "Authenticated message";
-    std::string mac;
+    std::string macHex;
 
     CryptoPP::StringSource(message, true,
-        new CryptoPP::HashFilter(hash,
+        new CryptoPP::HashFilter(mac,
             new CryptoPP::HexEncoder(
-                new CryptoPP::StringSink(mac))));
+                new CryptoPP::StringSink(macHex))));
 
-    std::cout << "BLAKE3 MAC: " << mac << std::endl;
+    std::cout << "BLAKE3 MAC: " << macHex << std::endl;
 
     return 0;
 }
@@ -240,7 +241,7 @@ BLAKE3 includes a dedicated key derivation mode with context strings for domain 
 #include <iostream>
 
 int main() {
-    // Input keying material (e.g., from a key exchange)
+    // Input keying material (e.g., from Argon2 output or key exchange)
     CryptoPP::SecByteBlock ikm(32);
     // In practice, this comes from your key exchange or master secret
     memset(ikm, 0x55, ikm.size());
@@ -248,14 +249,13 @@ int main() {
     // Context string should be unique to your application
     std::string context = "MyApp 2025-01-01 encryption key";
 
-    CryptoPP::BLAKE3 kdf;
-    kdf.SetKeyWithContext(ikm, ikm.size(),
-                          (const CryptoPP::byte*)context.data(), context.size());
+    // KDF mode via context constructor
+    CryptoPP::BLAKE3 kdf(context.c_str());
 
     // Derive a 32-byte key
     CryptoPP::SecByteBlock derivedKey(32);
-    kdf.Update((const CryptoPP::byte*)"", 0);  // Optional additional data
-    kdf.Final(derivedKey);
+    kdf.Update(ikm, ikm.size());
+    kdf.TruncatedFinal(derivedKey, derivedKey.size());
 
     std::cout << "Derived key successfully" << std::endl;
     return 0;
@@ -338,12 +338,14 @@ BLAKE3 performance advantages:
 
 ## Security Considerations
 
-- **Collision resistance**: 128-bit security level
-- **Preimage resistance**: 256-bit security level
-- **Second preimage resistance**: 256-bit security level
-- **No known vulnerabilities** as of 2025
+- **Collision resistance**: ~128-bit
+- **Preimage resistance**: ~128-bit
+- **Second preimage resistance**: ~128-bit
+- **No known practical attacks** as of 2025
 
-BLAKE3 is designed to be secure even against quantum computers for collision resistance (though preimage resistance would be reduced to 128-bit in a post-quantum world).
+BLAKE3 uses a 256-bit output, but its design targets ~128-bit security for all standard security goals, which is appropriate for most modern applications.
+
+BLAKE3 isn't post-quantum-special; like other 256-bit hashes, generic quantum attacks (Grover's algorithm) would roughly halve its effective security. Plan for ~128-bit classical / ~64-bit quantum security.
 
 ## API Reference
 
@@ -352,14 +354,14 @@ class BLAKE3 : public HashTransformation {
 public:
     CRYPTOPP_CONSTANT(DIGESTSIZE = 32)
 
-    BLAKE3();
+    // Standard hash mode
+    BLAKE3(unsigned int digestSize = DIGESTSIZE);
 
-    // For keyed hashing (MAC)
-    void SetKey(const byte *key, size_t keyLength);
+    // Keyed hash mode (MAC)
+    BLAKE3(const byte* key, size_t keyLength, unsigned int digestSize = DIGESTSIZE);
 
-    // For key derivation with context
-    void SetKeyWithContext(const byte *key, size_t keyLength,
-                           const byte *context, size_t contextLength);
+    // KDF mode with context string
+    BLAKE3(const char* context, unsigned int digestSize = DIGESTSIZE);
 
     void Update(const byte *input, size_t length);
     void Final(byte *digest);
@@ -369,10 +371,12 @@ public:
     unsigned int DigestSize() const { return DIGESTSIZE; }
     unsigned int BlockSize() const { return 64; }
 
-    // Returns "AVX2", "SSE4.1", or "C++"
+    // Returns "AVX2", "SSE4.1", "NEON", or "C++"
     std::string AlgorithmProvider() const;
 };
 ```
+
+BLAKE3 also supports `SetKey()` and `SetKeyWithContext()` methods for MAC and KDF modes; these are equivalent to the keyed and context constructors above.
 
 ## Building with BLAKE3
 
