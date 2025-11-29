@@ -8,7 +8,7 @@ weight: 1
 **Since:** cryptopp-modern 2025.11.0
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 
-Fast cryptographic hash function based on Bao and BLAKE2. BLAKE3 is designed for high performance and supports parallel hashing, tree hashing, keyed hashing (MAC), and key derivation.
+Fast cryptographic hash function based on Bao and BLAKE2. BLAKE3 is designed for high performance and supports parallel hashing, tree hashing, keyed hashing (MAC), and key derivation. The cryptopp-modern implementation includes SIMD acceleration with automatic runtime CPU detection (AVX2, SSE4.1, or C++ fallback).
 
 ## Quick Example
 
@@ -42,7 +42,8 @@ BLAKE3 is a cryptographic hash function that is significantly faster than MD5, S
 
 Key features:
 - **Extremely fast** - Outperforms all standard hash functions
-- **Parallelizable** - Takes advantage of SIMD and multi-core processors
+- **SIMD accelerated** - Runtime detection of AVX2 (8-way parallel), SSE4.1 (4-way parallel), or C++ fallback
+- **Parallelisable** - Merkle tree structure enables parallel chunk processing
 - **Extendable output** - Can generate hashes of any length
 - **Multiple modes** - Standard hash, keyed hash (MAC), or KDF
 - **No length extension** - Secure against length extension attacks
@@ -447,20 +448,51 @@ int main() {
 
 ## Performance
 
-BLAKE3 is one of the fastest cryptographic hash functions available:
+BLAKE3 is one of the fastest cryptographic hash functions available, with SIMD-accelerated implementations that provide significant speedups.
 
-- **Significantly faster than [SHA-256](/docs/api/hash/SHA256/)** - Around 10× faster on modern CPUs; often ~2×+ faster than BLAKE2b
-- **Hardware acceleration** - Uses SSE4.1, AVX2, AVX-512, and NEON when available
-- **Parallelizable** - Scales with multiple cores for large inputs
+### SIMD Acceleration
+
+cryptopp-modern's BLAKE3 implementation includes optimised SIMD code paths with automatic runtime CPU detection:
+
+| SIMD Level | Parallel Chunks | Minimum Buffer | Approx. Speed |
+|------------|-----------------|----------------|---------------|
+| AVX2 | 8 at a time | 8KB | ~2600 MiB/s |
+| SSE4.1 | 4 at a time | 4KB | ~1800 MiB/s |
+| C++ | 1 at a time | Any | ~800 MiB/s |
+
+*Benchmarks on Intel Core Ultra 7 155H, Windows 11, MinGW-w64 GCC*
+
+### Comparison with Other Hash Functions
+
+| Algorithm | Provider | Speed (MiB/s) | vs BLAKE2b |
+|-----------|----------|---------------|------------|
+| BLAKE3 | AVX2 | 2599 | **3.15x faster** |
+| BLAKE3 | SSE4.1 | ~1800 | 2.2x faster |
+| BLAKE3 | C++ | ~800 | Similar |
+| BLAKE2b | SSE4.1 | 822 | baseline |
+
+### Performance Tips
+
+- **Use large buffers**: For maximum throughput with large data, use 8KB+ buffers to enable full AVX2 parallel processing
+- **Check your provider**: Use `AlgorithmProvider()` to verify which SIMD implementation is active
+- **Small data is fine**: BLAKE3 adapts automatically - small inputs work correctly, just without SIMD parallelism
+
+```cpp
+// Optimal: Large buffer enables AVX2 parallel processing
+BLAKE3 hash;
+const size_t BUFFER_SIZE = 65536;  // 64KB
+std::vector<byte> buffer(BUFFER_SIZE);
+
+std::ifstream file("largefile.bin", std::ios::binary);
+while (file.read(reinterpret_cast<char*>(buffer.data()), BUFFER_SIZE)) {
+    hash.Update(buffer.data(), file.gcount());  // ~2600 MiB/s with AVX2
+}
+```
+
+### Additional Performance Characteristics
+
 - **Constant-time** - No data-dependent branches (resistant to timing attacks)
-
-Use `AlgorithmProvider()` to check which hardware acceleration is being used.
-
-**Benchmark (approximate, single-threaded on modern x86):**
-- BLAKE3: ~3-4 GB/s
-- BLAKE2b: ~1.5 GB/s
-- SHA-256: ~300 MB/s
-- SHA-512: ~500 MB/s
+- **Memory alignment** - Buffers aligned to 32 bytes (AVX2) or 16 bytes (SSE4.1) may provide marginal improvements, though unaligned access is fully supported
 
 ## Security
 
