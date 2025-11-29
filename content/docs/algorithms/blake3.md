@@ -99,7 +99,7 @@ BLAKE3 automatically adapts to available data - no special handling required:
 
 | Data Size | Parallelism | Typical Use Case |
 |-----------|-------------|------------------|
-| < 1KB | None (single chunk) | Passwords, tokens, small strings |
+| < 1KB | None (single chunk) | Short identifiers, tokens, small strings |
 | 1-4KB | Limited | Small files, config data |
 | 4-8KB | SSE4.1 (4-way) | Medium files |
 | 8KB+ | AVX2 (8-way) | Large files, disk images |
