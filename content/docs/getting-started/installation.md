@@ -28,8 +28,8 @@ CMake is one of the supported build systems for cryptopp-modern. It provides IDE
 ```bash
 # Download and extract release
 cd /tmp
-wget https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.11.0/cryptopp-modern-2025.11.0.zip
-unzip -q cryptopp-modern-2025.11.0.zip -d cryptopp
+wget https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip
+unzip -q cryptopp-modern-2025.12.0.zip -d cryptopp
 cd cryptopp
 
 # Configure with default preset (Release, Ninja)
@@ -130,8 +130,8 @@ sudo apt-get install -y \
 
 # Download and extract
 cd /tmp
-wget https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.11.0/cryptopp-modern-2025.11.0.zip
-unzip -q cryptopp-modern-2025.11.0.zip -d cryptopp
+wget https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip
+unzip -q cryptopp-modern-2025.12.0.zip -d cryptopp
 cd cryptopp
 
 # Build and install
@@ -147,7 +147,7 @@ sudo ldconfig
 
 ```bash
 # Download release from:
-# https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.11.0/cryptopp-modern-2025.11.0.zip
+# https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip
 
 # Extract the zip file
 # Open MinGW terminal and navigate to extracted folder
@@ -164,8 +164,8 @@ mingw32-make.exe -j$(nproc)
 ```bash
 # Download and extract
 cd /tmp
-curl -L -O https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.11.0/cryptopp-modern-2025.11.0.zip
-unzip -q cryptopp-modern-2025.11.0.zip -d cryptopp
+curl -L -O https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip
+unzip -q cryptopp-modern-2025.12.0.zip -d cryptopp
 cd cryptopp
 
 # Build and install
@@ -430,12 +430,26 @@ For advanced build options including sanitisers, code coverage, SIMD feature fla
 
 ## Downloads
 
-- **Latest Release:** [GitHub Releases](https://github.com/cryptopp-modern/cryptopp-modern/releases/latest)
-- **All Releases:** [Release History](https://github.com/cryptopp-modern/cryptopp-modern/releases)
+### Latest Release (2025.12.0)
 
-{{< callout type="info" >}}
-The examples on this page use version `2025.11.0`. Replace with the current release version as needed.
-{{< /callout >}}
+| File | Description |
+|------|-------------|
+| [cryptopp-modern-2025.12.0.zip](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip) | Source release |
+| [cryptopp-modern-2025.12.0.zip.sig](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip.sig) | GPG signature (binary) |
+| [cryptopp-modern-2025.12.0.zip.asc](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip.asc) | GPG signature (ASCII) |
+| [cryptopp-modern-2025.12.0.zip.sha256](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip.sha256) | SHA256 checksum |
+
+### Verify Download
+
+```bash
+# Verify GPG signature
+gpg --verify cryptopp-modern-2025.12.0.zip.sig cryptopp-modern-2025.12.0.zip
+
+# Verify SHA256 checksum
+sha256sum -c cryptopp-modern-2025.12.0.zip.sha256
+```
+
+- **All Releases:** [Release History](https://github.com/cryptopp-modern/cryptopp-modern/releases)
 
 ## Next Steps
 

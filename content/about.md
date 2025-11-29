@@ -11,9 +11,9 @@ cryptopp-modern builds upon the solid foundation of Wei Dai's Crypto++ library, 
 
 ### Current Version
 
-**2025.12.0 (Release Candidate)** - Complete source reorganisation with 204 files organised into logical categories.
+**2025.12.0** - Major release with complete source reorganisation, BLAKE3 SIMD acceleration, and modern CMake build system.
 
-**2025.11.0** - Stable release with BLAKE3 and Argon2 support.
+**2025.11.0** - First release with BLAKE3 and Argon2 support.
 
 ## Why Fork Crypto++?
 
@@ -108,10 +108,11 @@ Free and open source under the Boost Software License 1.0. No restrictions on co
 - BLAKE3 support added
 - Argon2 implementation included
 
-**December 2025**: cryptopp-modern 2025.12.0 (RC)
-- Complete source reorganisation
-- Improved build systems
-- Enhanced CI/CD pipeline
+**December 2025**: cryptopp-modern 2025.12.0
+- Complete source reorganisation (204 files in categorised directories)
+- BLAKE3 SIMD acceleration (SSE4.1/AVX2/NEON)
+- Modern CMake build system with presets and find_package() support
+- Enhanced CI/CD pipeline (50+ build configurations)
 
 ## Maintainers
 

@@ -22,11 +22,11 @@ int minor = (version / 10) % 10;  // 9
 int patch = version % 10;         // 0
 ```
 
-**cryptopp-modern 2025.11.0:**
+**cryptopp-modern 2025.12.0:**
 ```cpp
 // New version format: YEAR.MONTH.INCREMENT
 // Encoded as: (YEAR * 10000) + (MONTH * 100) + INCREMENT
-int version = CRYPTOPP_VERSION;   // 202511000 for 2025.11.0
+int version = CRYPTOPP_VERSION;   // 202511000 for 2025.12.0
 int year = version / 10000;       // 2025
 int month = (version / 100) % 100; // 11
 int increment = version % 100;    // 0
@@ -50,8 +50,8 @@ If your code checks the library version, you'll need to update the parsing logic
 #endif
 
 // After (cryptopp-modern)
-#if CRYPTOPP_VERSION >= 202511000  // 2025.11.0
-    // Use features from 2025.11.0
+#if CRYPTOPP_VERSION >= 202511000  // 2025.12.0
+    // Use features from 2025.12.0
 #endif
 
 // Better approach: Check for feature availability
@@ -207,8 +207,8 @@ sudo make uninstall  # In Crypto++ directory
 
 # Install cryptopp-modern
 cd /tmp
-wget https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.11.0/cryptopp-modern-2025.11.0.zip
-unzip cryptopp-modern-2025.11.0.zip -d cryptopp-modern
+wget https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip
+unzip cryptopp-modern-2025.12.0.zip -d cryptopp-modern
 cd cryptopp-modern
 make -j$(nproc)
 sudo make install PREFIX=/usr/local
@@ -217,7 +217,7 @@ sudo ldconfig
 
 **Windows (MinGW):**
 ```bash
-# Download and extract cryptopp-modern-2025.11.0.zip
+# Download and extract cryptopp-modern-2025.12.0.zip
 # Build
 mingw32-make.exe -j$(nproc)
 ```
@@ -235,7 +235,7 @@ mingw32-make.exe -j$(nproc)
 ```cpp
 // Option 1: Update version number
 #if CRYPTOPP_VERSION >= 202511000
-    // Feature available in cryptopp-modern 2025.11.0+
+    // Feature available in cryptopp-modern 2025.12.0+
 #endif
 
 // Option 2: Feature detection (better)
@@ -265,7 +265,7 @@ Update your project's documentation to reflect the new library:
 ```markdown
 ## Dependencies
 
-- cryptopp-modern 2025.11.0 or later
+- cryptopp-modern 2025.12.0 or later
   (formerly Crypto++ 8.9.0)
 ```
 
@@ -316,7 +316,7 @@ int year = CRYPTOPP_VERSION / 10000;
 int month = (CRYPTOPP_VERSION / 100) % 100;
 int increment = CRYPTOPP_VERSION % 100;
 std::cout << "Using cryptopp-modern " << year << "." << month << "." << increment << std::endl;
-// Output: Using cryptopp-modern 2025.11.0
+// Output: Using cryptopp-modern 2025.12.0
 ```
 
 **Action:** Update version display logic.
