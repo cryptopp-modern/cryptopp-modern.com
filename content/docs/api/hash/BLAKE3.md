@@ -70,9 +70,9 @@ Key features:
 - `DIGESTSIZE = 32` - Default output size in bytes
 - `BLOCKSIZE = 64` - Internal block size in bytes
 - `CHUNKSIZE = 1024` - Chunk size for tree hashing
-- `DEFAULT_KEYLENGTH = 32` - Default key length for keyed hashing
-- `MIN_KEYLENGTH = 0` - Minimum key length (0 for non-keyed hashing)
-- `MAX_KEYLENGTH = 32` - Maximum key length in bytes
+- `DEFAULT_KEYLENGTH = 32` - Recommended key length for keyed hashing
+- `MIN_KEYLENGTH = 0` - Minimum key length in bytes (0 = unkeyed hashing; keyed mode is defined for 32-byte keys)
+- `MAX_KEYLENGTH = 32` - Maximum supported key length in bytes
 
 ## Constructors
 
@@ -105,7 +105,7 @@ Constructs a BLAKE3 object for keyed hashing (MAC mode). Use this for message au
 
 **Parameters:**
 - `key` - Pointer to key bytes
-- `keyLength` - Length of key in bytes (must be ≤ 32)
+- `keyLength` - Length of key in bytes (up to 32; BLAKE3 is defined for 32-byte keys, so 32 is recommended for new designs)
 - `digestSize` - Desired hash output size in bytes (default: 32)
 
 **Exceptions:**
@@ -555,7 +555,7 @@ void workerThread(const std::vector<std::string>& messages) {
 - **Deduplication** - Fast hash for identifying duplicate data
 - **Message authentication** - Use keyed mode for MAC
 - **Key derivation** - Derive multiple keys from one secret (use KDF mode)
-- **Hash tables** - Fast non-cryptographic hashing (use basic mode)
+- **Hash tables** - Fast hashing for identifiers/keys (basic mode; still cryptographic-strength)
 
 ## Test Vectors
 
