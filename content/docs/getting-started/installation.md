@@ -6,6 +6,31 @@ description: "Step-by-step installation guide for cryptopp-modern on Windows, Li
 
 cryptopp-modern is distributed as source releases. Download the latest release package, build, and install on Windows, Linux, and macOS.
 
+## Downloads
+
+### Latest Release (2025.12.0)
+
+| File | Description |
+|------|-------------|
+| [cryptopp-modern-2025.12.0.zip](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip) | Source release |
+| [cryptopp-modern-2025.12.0.zip.sig](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip.sig) | GPG signature (binary) |
+| [cryptopp-modern-2025.12.0.zip.asc](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip.asc) | GPG signature (ASCII) |
+| [cryptopp-modern-2025.12.0.zip.sha256](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip.sha256) | SHA256 checksum |
+
+### Verify Download
+
+```bash
+# Verify GPG signature
+gpg --verify cryptopp-modern-2025.12.0.zip.sig cryptopp-modern-2025.12.0.zip
+
+# Verify SHA256 checksum
+sha256sum -c cryptopp-modern-2025.12.0.zip.sha256
+```
+
+- **All Releases:** [Release History](https://github.com/cryptopp-modern/cryptopp-modern/releases)
+
+---
+
 ## Build Systems
 
 cryptopp-modern can be built with either CMake or the provided GNUmakefile, with additional Visual Studio and nmake options on Windows. Choose the option that best fits your development environment.
@@ -427,29 +452,6 @@ For advanced build options including sanitisers, code coverage, SIMD feature fla
 
 - `CMAKE.md` - Full CMake build system reference
 - `GNUMAKEFILE.md` - Full GNUmakefile build system reference
-
-## Downloads
-
-### Latest Release (2025.12.0)
-
-| File | Description |
-|------|-------------|
-| [cryptopp-modern-2025.12.0.zip](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip) | Source release |
-| [cryptopp-modern-2025.12.0.zip.sig](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip.sig) | GPG signature (binary) |
-| [cryptopp-modern-2025.12.0.zip.asc](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip.asc) | GPG signature (ASCII) |
-| [cryptopp-modern-2025.12.0.zip.sha256](https://github.com/cryptopp-modern/cryptopp-modern/releases/download/2025.12.0/cryptopp-modern-2025.12.0.zip.sha256) | SHA256 checksum |
-
-### Verify Download
-
-```bash
-# Verify GPG signature
-gpg --verify cryptopp-modern-2025.12.0.zip.sig cryptopp-modern-2025.12.0.zip
-
-# Verify SHA256 checksum
-sha256sum -c cryptopp-modern-2025.12.0.zip.sha256
-```
-
-- **All Releases:** [Release History](https://github.com/cryptopp-modern/cryptopp-modern/releases)
 
 ## Next Steps
 
