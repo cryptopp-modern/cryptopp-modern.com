@@ -15,7 +15,7 @@ BLAKE3 is based on the BLAKE2 hash function and Bao tree hashing mode. Key featu
 - **Parallelisable**: Takes advantage of SIMD instructions
 - **General-purpose**: One algorithm for hashing, MACs, KDFs, and PRNGs
 - **Simple**: Fewer parameters and modes than BLAKE2
-- **SIMD Acceleration**: Runtime CPU detection with AVX2, SSE4.1, and C++ fallback
+- **SIMD Acceleration**: Runtime CPU detection with AVX-512, AVX2, SSE4.1, NEON, and C++ fallback
 
 ## Use Cases
 
@@ -37,6 +37,7 @@ cryptopp-modern's BLAKE3 implementation includes SIMD-accelerated code paths wit
 
 | SIMD Level | Parallel Chunks | Minimum Buffer | Approx. Speed |
 |------------|-----------------|----------------|---------------|
+| AVX-512 | 16 at a time | 16KB | ~4500 MiB/s |
 | AVX2 | 8 at a time | 8KB | ~2600 MiB/s |
 | SSE4.1 | 4 at a time | 4KB | ~1800 MiB/s |
 | C++ | 1 at a time | Any | ~800 MiB/s |
@@ -54,7 +55,7 @@ You can verify which SIMD implementation is being used at runtime:
 int main() {
     CryptoPP::BLAKE3 hash;
     std::cout << "BLAKE3 provider: " << hash.AlgorithmProvider() << std::endl;
-    // Output: "AVX2", "SSE4.1", "NEON", or "C++"
+    // Output: "AVX512", "AVX2", "SSE4.1", "NEON", or "C++"
     return 0;
 }
 ```
@@ -90,7 +91,7 @@ int main() {
 ```
 
 {{< callout type="info" >}}
-**Buffer size matters for large data.** With AVX2, 8KB+ buffers enable 8-way parallel chunk processing (~2600 MiB/s). Smaller buffers still work correctly but won't achieve maximum throughput.
+**Buffer size matters for large data.** With AVX-512, 16KB+ buffers enable 16-way parallel chunk processing (~4500 MiB/s). With AVX2, 8KB+ buffers enable 8-way parallel processing (~2600 MiB/s). Smaller buffers still work correctly but won't achieve maximum throughput.
 {{< /callout >}}
 
 ### Graceful Degradation
@@ -102,7 +103,8 @@ BLAKE3 automatically adapts to available data - no special handling required:
 | < 1KB | None (single chunk) | Short identifiers, tokens, small strings |
 | 1-4KB | Limited | Small files, config data |
 | 4-8KB | SSE4.1 (4-way) | Medium files |
-| 8KB+ | AVX2 (8-way) | Large files, disk images |
+| 8-16KB | AVX2 (8-way) | Large files |
+| 16KB+ | AVX-512 (16-way) | Large files, disk images |
 
 Small data hashing works correctly and efficiently - the parallel processing is a bonus for large data, not a requirement.
 
@@ -297,7 +299,7 @@ int main() {
 
 BLAKE3 performance advantages:
 
-- **SIMD Acceleration**: Automatic runtime detection of AVX2, SSE4.1, or C++ fallback
+- **SIMD Acceleration**: Automatic runtime detection of AVX-512, AVX2, SSE4.1, NEON, or C++ fallback
 - **Parallelism**: Merkle tree structure enables parallel chunk processing
 - **Small inputs**: Still fast even for small messages
 - **Large files**: Excellent performance on large data with proper buffer sizes
@@ -306,6 +308,7 @@ BLAKE3 performance advantages:
 
 | Algorithm | Provider | Speed (MiB/s) | vs BLAKE2b |
 |-----------|----------|---------------|------------|
+| BLAKE3 | AVX-512 | ~4500 | **5.5x faster** |
 | BLAKE3 | AVX2 | 2599 | **3.15x faster** |
 | BLAKE3 | SSE4.1 | ~1800 | 2.2x faster |
 | BLAKE3 | C++ | ~800 | Similar |
@@ -371,7 +374,7 @@ public:
     unsigned int DigestSize() const { return DIGESTSIZE; }
     unsigned int BlockSize() const { return 64; }
 
-    // Returns "AVX2", "SSE4.1", "NEON", or "C++"
+    // Returns "AVX512", "AVX2", "SSE4.1", "NEON", or "C++"
     std::string AlgorithmProvider() const;
 };
 ```
@@ -446,7 +449,7 @@ Input Data (16KB example)
                                    Final digest
 ```
 
-With AVX2, 8 chunks are processed simultaneously, doubling throughput compared to SSE4.1.
+With AVX-512, 16 chunks are processed simultaneously. AVX2 processes 8 chunks, doubling throughput compared to SSE4.1's 4-way parallelism.
 
 ### Thread Safety
 

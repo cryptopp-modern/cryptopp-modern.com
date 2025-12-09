@@ -8,7 +8,7 @@ weight: 1
 **Since:** cryptopp-modern 2025.11.0
 **Thread Safety:** Not thread-safe per instance; use separate instances per thread
 
-Fast cryptographic hash function based on Bao and BLAKE2. BLAKE3 is designed for high performance and supports parallel hashing, tree hashing, keyed hashing (MAC), and key derivation. The cryptopp-modern implementation includes SIMD acceleration with automatic runtime CPU detection (AVX2, SSE4.1, NEON, or C++ fallback).
+Fast cryptographic hash function based on Bao and BLAKE2. BLAKE3 is designed for high performance and supports parallel hashing, tree hashing, keyed hashing (MAC), and key derivation. The cryptopp-modern implementation includes SIMD acceleration with automatic runtime CPU detection (AVX-512, AVX2, SSE4.1, NEON, or C++ fallback).
 
 ## Quick Example
 
@@ -42,7 +42,7 @@ BLAKE3 is a cryptographic hash function that is significantly faster than MD5, S
 
 Key features:
 - **Extremely fast** - Outperforms all standard hash functions
-- **SIMD accelerated** - Runtime detection of AVX2 (8-way parallel), SSE4.1 (4-way parallel), NEON (ARM), or C++ fallback
+- **SIMD accelerated** - Runtime detection of AVX-512 (16-way parallel), AVX2 (8-way parallel), SSE4.1 (4-way parallel), NEON (ARM), or C++ fallback
 - **Parallelisable** - Merkle tree structure enables parallel chunk processing
 - **Extendable output** - Can generate hashes of any length
 - **Multiple modes** - Standard hash, keyed hash (MAC), or KDF
@@ -173,7 +173,7 @@ std::string AlgorithmProvider() const
 ```
 Returns the implementation provider, indicating if hardware acceleration is used.
 
-**Returns:** One of `"C++"`, `"SSE4.1"`, `"AVX2"`, or `"NEON"` (on ARM platforms).
+**Returns:** One of `"C++"`, `"SSE4.1"`, `"AVX2"`, `"AVX512"`, or `"NEON"` (on ARM platforms).
 
 **Thread Safety:** Thread-safe (const method).
 
@@ -471,6 +471,7 @@ cryptopp-modern's BLAKE3 implementation includes optimised SIMD code paths with 
 
 | SIMD Level | Parallel Chunks | Minimum Buffer | Approx. Speed |
 |------------|-----------------|----------------|---------------|
+| AVX-512 | 16 at a time | 16KB | ~4500 MiB/s |
 | AVX2 | 8 at a time | 8KB | ~2600 MiB/s |
 | SSE4.1 | 4 at a time | 4KB | ~1800 MiB/s |
 | C++ | 1 at a time | Any | ~800 MiB/s |
@@ -481,6 +482,7 @@ cryptopp-modern's BLAKE3 implementation includes optimised SIMD code paths with 
 
 | Algorithm | Provider | Speed (MiB/s) | vs BLAKE2b |
 |-----------|----------|---------------|------------|
+| BLAKE3 | AVX-512 | ~4500 | **5.5x faster** |
 | BLAKE3 | AVX2 | 2599 | **3.15x faster** |
 | BLAKE3 | SSE4.1 | ~1800 | 2.2x faster |
 | BLAKE3 | C++ | ~800 | Similar |
@@ -488,7 +490,7 @@ cryptopp-modern's BLAKE3 implementation includes optimised SIMD code paths with 
 
 ### Performance Tips
 
-- **Use large buffers**: For maximum throughput with large data, use 8KB+ buffers to enable full AVX2 parallel processing
+- **Use large buffers**: For maximum throughput with large data, use 16KB+ buffers to enable full AVX-512 parallel processing (or 8KB+ for AVX2)
 - **Check your provider**: Use `AlgorithmProvider()` to verify which SIMD implementation is active
 - **Small data is fine**: BLAKE3 adapts automatically - small inputs work correctly, just without SIMD parallelism
 
