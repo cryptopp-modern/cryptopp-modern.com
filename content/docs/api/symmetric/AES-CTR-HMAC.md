@@ -156,7 +156,7 @@ enc.SetKeyWithIV(masterKey, masterKey.size(), iv, sizeof(iv));
 
 The HMAC is computed over a structured input for robust security:
 
-```
+```text
 HMAC Input:
 ┌─────────────────────────────────────┐
 │ Domain: "AES-CTR-HMAC-" + HashName  │  (ASCII string)
