@@ -105,7 +105,7 @@ XAES_256_GCM::Encryption::TAG_SIZE  // 16 (128 bits, fixed)
 | Nonce size | 24 bytes (192 bits) | Fixed, enables safe random generation |
 | Tag size | 16 bytes (128 bits) | Fixed |
 | Safe random nonces | Yes | ~2^80 messages before collision risk |
-| Overhead | +3 AES blocks | Per-message key derivation cost |
+| Overhead | +2 AES blocks/message | Plus 1 block cached per key |
 
 ## XAES_256_GCM::Encryption
 
@@ -218,13 +218,15 @@ One-shot encryption with authentication.
 **Parameters:**
 - `ciphertext` - Output buffer (same size as message)
 - `mac` - Output authentication tag (16 bytes)
-- `macSize` - Size of MAC buffer (16)
+- `macSize` - Size of MAC buffer (must be exactly 16)
 - `iv` - Nonce (24 bytes)
 - `ivLength` - Nonce length (24)
-- `aad` - Additional authenticated data (can be NULL)
+- `aad` - Additional authenticated data (can be NULL if aadLength is 0)
 - `aadLength` - AAD length
-- `message` - Plaintext to encrypt
+- `message` - Plaintext to encrypt (can be NULL if messageLength is 0)
 - `messageLength` - Plaintext length
+
+**Throws:** `InvalidArgument` if macSize is not 16, or if buffers are null with non-zero lengths
 
 **Example:**
 
@@ -289,15 +291,17 @@ One-shot decryption with authentication verification.
 **Parameters:**
 - `message` - Output buffer for plaintext
 - `mac` - Authentication tag to verify (16 bytes)
-- `macSize` - Size of MAC (16)
+- `macSize` - Size of MAC (must be exactly 16)
 - `iv` - Nonce (must match encryption)
 - `ivLength` - Nonce length (24)
-- `aad` - Additional authenticated data (must match encryption)
+- `aad` - Additional authenticated data (must match encryption, can be NULL if aadLength is 0)
 - `aadLength` - AAD length
-- `ciphertext` - Encrypted data
+- `ciphertext` - Encrypted data (can be NULL if ciphertextLength is 0)
 - `ciphertextLength` - Ciphertext length
 
 **Returns:** `true` if authentication succeeded, `false` if verification failed
+
+**Throws:** `InvalidArgument` if macSize is not 16, or if buffers are null with non-zero lengths
 
 **Important:** Always check the return value. If false, the message has been tampered with and you must discard the plaintext.
 
@@ -325,6 +329,10 @@ if (!valid) {
 ## Streaming Interface
 
 For large messages or incremental processing.
+
+{{< callout type="warning" >}}
+**Streaming Misuse Protection:** The streaming interface enforces that `Resynchronize()` must be called before each message. After `TruncatedFinal()` or `TruncatedVerify()` completes, attempting to call `Update()` or `ProcessData()` without first calling `Resynchronize()` will throw `BadState`. This prevents accidental nonce reuse.
+{{< /callout >}}
 
 ### Streaming Encryption
 
@@ -670,7 +678,7 @@ void handleAuthFailure() {
 | Nonce size | 192 bits (fixed) | Safe random generation |
 | Tag length | 128 bits (fixed) | Strong authenticity |
 | Message limit | ~2^80 per key | Birthday bound on 192-bit nonce |
-| Key derivation | NIST SP 800-108r1 | CMAC-based, adds 3 AES blocks overhead |
+| Key derivation | NIST SP 800-108r1 | CMAC-based, 2 AES blocks/message + 1 cached/key |
 
 **Security best practices:**
 
@@ -691,9 +699,9 @@ XAES-256-GCM extends the nonce to 24 bytes (192 bits), raising the birthday boun
 
 XAES-256-GCM derives a per-message key using NIST SP 800-108r1 (CMAC-based KDF):
 1. Takes the 32-byte master key and the **first 12 bytes** of the 24-byte nonce
-2. Derives a 32-byte subkey using CMAC
+2. Derives a 32-byte subkey using CMAC (2 AES block encryptions)
 3. Uses the **last 12 bytes** of the nonce as the GCM IV
-4. Overhead: 3 additional AES block encryptions per message
+4. Overhead: 2 AES block encryptions per message, plus 1 block (L computation) cached per master key
 
 **Restart() Protection**
 
@@ -709,7 +717,7 @@ Unlike standard GCM, calling `Restart()` on XAES-256-GCM throws a `BadState` exc
 | Nonce size | 12 bytes | 24 bytes |
 | Tag size | 16 bytes | 16 bytes |
 | Safe random nonce | No (~2^32 messages) | Yes (~2^80 messages) |
-| Per-message overhead | None | +3 AES blocks |
+| Per-message overhead | None | +2 AES blocks |
 | Standard | NIST SP 800-38D | C2SP XAES-256-GCM |
 
 **When to use XAES-256-GCM:**
@@ -741,8 +749,8 @@ void threadFunc() {
 ## Exceptions
 
 - `InvalidKeyLength` - Key size is not exactly 32 bytes
-- `InvalidArgument` - Nonce size is not exactly 24 bytes
-- `BadState` - `Restart()` was called (use `Resynchronize()` instead)
+- `InvalidArgument` - Nonce size is not exactly 24 bytes, or tag size is not 16, or null buffer with non-zero length
+- `BadState` - `Restart()` was called, or streaming methods called without `Resynchronize()`
 
 ## Algorithm Details
 
