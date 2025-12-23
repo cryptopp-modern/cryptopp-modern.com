@@ -332,6 +332,8 @@ For large messages or incremental processing.
 
 {{< callout type="warning" >}}
 **Streaming Misuse Protection:** The streaming interface enforces that `Resynchronize()` must be called before each message. After `TruncatedFinal()` or `TruncatedVerify()` completes, attempting to call `Update()` or `ProcessData()` without first calling `Resynchronize()` will throw `BadState`. This prevents accidental nonce reuse.
+
+**Fixed Tag Size:** `TruncatedFinal()` and `TruncatedVerify()` require exactly 16 bytes for the tag (throws `InvalidArgument` otherwise). This matches the scheme's fixed-tag design.
 {{< /callout >}}
 
 ### Streaming Encryption
