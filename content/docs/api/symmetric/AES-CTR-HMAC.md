@@ -82,6 +82,7 @@ int main() {
 - Reusing IVs with the same key (catastrophic for CTR mode)
 - Ignoring authentication failures during decryption
 - Using this for password-based encryption directly (use Argon2 first to derive the master key)
+- Calling `Restart()` between messages—use `Resynchronize()` with a fresh IV instead
 {{< /callout >}}
 
 ## Why AES-CTR-HMAC?
@@ -116,7 +117,7 @@ Master Key (16/24/32 bytes)
          │
          ▼
     ┌─────────┐
-    │  HKDF   │  info = "AES-CTR-HMAC-" + HashName
+    │  HKDF   │  info = "{BlockCipher}-CTR-HMAC-" + HashName
     └────┬────┘     (e.g. "AES-CTR-HMAC-SHA-256")
          │
     ┌────┴────┐
@@ -158,8 +159,9 @@ The HMAC is computed over a structured input for robust security:
 ```text
 HMAC Input:
 ┌─────────────────────────────────────┐
-│ Domain: "AES-CTR-HMAC-" + HashName  │  (ASCII string)
-│         e.g. "AES-CTR-HMAC-SHA-256" │
+│ Domain: "{BlockCipher}-CTR-HMAC-" +     │  (ASCII string)
+│         HashName                         │
+│         e.g. "AES-CTR-HMAC-SHA-256"     │
 ├─────────────────────────────────────┤
 │ Separator: 0x00                     │  (1 byte)
 ├─────────────────────────────────────┤
@@ -347,9 +349,9 @@ void SetKeyWithIV(const byte* key, size_t keyLength,
 Set the master key and IV. The master key is expanded via HKDF into separate encryption and MAC keys.
 
 **Parameters:**
-- `key` - Master key (16, 24, or 32 bytes)
+- `key` - Master key (16, 24, or 32 bytes); must not be null
 - `keyLength` - Length of master key
-- `iv` - Initialization vector (must be 12 bytes)
+- `iv` - Initialization vector (must be 12 bytes); must not be null
 - `ivLength` - Length of IV (must be 12)
 
 #### EncryptAndAuthenticate()
@@ -364,15 +366,15 @@ void EncryptAndAuthenticate(byte* ciphertext, byte* mac, size_t macSize,
 One-shot encryption with authentication.
 
 **Parameters:**
-- `ciphertext` - Output buffer (same size as message)
-- `mac` - Output authentication tag
+- `ciphertext` - Output buffer (same size as message); must not be null if messageLength > 0
+- `mac` - Output authentication tag; must not be null
 - `macSize` - Size of MAC output. Default is 16 bytes. Must be between 12 and the hash digest size (32 for SHA-256, 64 for SHA-512); values outside this range throw `InvalidArgument`
-- `iv` - Initialization vector (12 bytes)
+- `iv` - Initialization vector (12 bytes); must not be null
 - `ivLength` - IV length
-- `aad` - Additional authenticated data (can be NULL)
+- `aad` - Additional authenticated data (can be NULL if aadLength is 0)
 - `aadLength` - AAD length
-- `message` - Plaintext to encrypt
-- `messageLength` - Plaintext length
+- `message` - Plaintext to encrypt (can be NULL if messageLength is 0)
+- `messageLength` - Plaintext length; must not exceed `MaxMessageLength()`
 
 ### AES_CTR_HMAC<>::Decryption
 
@@ -407,6 +409,10 @@ The following methods return size information:
 - `TagSize()` returns 16 by default
 - Minimum tag size is 12 bytes; maximum is the hash digest size (32 for SHA-256, 64 for SHA-512)
 
+**Message length limit:**
+- `MaxMessageLength()` returns (2^32 - 1) x 16 bytes (~68 GB)
+- This limit prevents the 32-bit CTR counter from overflowing into the IV portion
+
 ## Performance
 
 | Configuration | Approx. Speed | Notes |
@@ -431,14 +437,17 @@ The following methods return size information:
 | IV size | 96 bits (12 bytes) |
 | Tag size | 128 bits default (min 96 bits, max = hash digest size) |
 | Construction | Encrypt-then-MAC |
+| Max message | ~68 GB (counter overflow protection) |
 
 ### Security Properties
 
 - **Confidentiality:** Provided by AES-CTR with derived encryption key
 - **Authenticity:** Provided by HMAC over domain string, IV, AAD, ciphertext, and lengths
 - **Key separation:** HKDF ensures encryption and MAC keys are cryptographically independent
-- **Domain separation:** Hash algorithm name included in HKDF info and MAC input
+- **Domain separation:** Block cipher and hash algorithm names included in HKDF info and MAC input
 - **Length encoding:** Avoids ambiguity and concatenation attacks on `(AAD, ciphertext)`
+- **Streaming misuse protection:** `Restart()` throws `BadState` to prevent accidental IV reuse; use `Resynchronize()` with a fresh IV for new messages
+- **Counter overflow protection:** `MaxMessageLength()` enforces a limit to prevent the CTR counter from wrapping
 
 ### Comparison with AES-GCM
 
@@ -469,7 +478,8 @@ void threadFunc() {
 ## Exceptions
 
 - `InvalidKeyLength` - Master key size is not 16, 24, or 32 bytes
-- `InvalidArgument` - IV length is not 12 bytes, or `macSize` is outside the range [12, digest size]
+- `InvalidArgument` - IV length is not 12 bytes, `macSize` is outside the range [12, digest size], message exceeds `MaxMessageLength()`, or null pointer passed for required buffer
+- `BadState` - `Restart()` was called (use `Resynchronize()` with a fresh IV instead)
 - `HashVerificationFilter::HashVerificationFailed` - Authentication tag verification failed (when using filters)
 
 ## See Also
