@@ -21,8 +21,10 @@ This repository contains the Hugo source for the cryptopp-modern documentation s
 #### Symmetric Encryption
 
 - **AES-GCM** – Authenticated encryption (recommended)
+- **XAES-256-GCM** – Extended nonce AES-GCM (safe random nonces)
 - **AES-EAX** – Two-pass AEAD
 - **AES-CCM** – Wi-Fi/Bluetooth/TLS AEAD
+- **AES-CTR-HMAC** – CTR mode with HMAC (automatic key derivation)
 - **ChaCha20-Poly1305** – Modern AEAD cipher
 - **XChaCha20-Poly1305** – Extended nonce AEAD
 - **AES-CBC** – Block cipher mode (legacy)
