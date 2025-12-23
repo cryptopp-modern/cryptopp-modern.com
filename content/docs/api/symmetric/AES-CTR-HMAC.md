@@ -37,7 +37,7 @@ int main() {
 
     // Encrypt
     AES_CTR_HMAC_SHA256::Encryption enc;
-    enc.SetKeyWithIV(masterKey, masterKey.size(), iv, sizeof(iv));
+    enc.SetKey(masterKey, masterKey.size());
     enc.EncryptAndAuthenticate(
         (byte*)ciphertext.data(), tag, sizeof(tag),
         iv, sizeof(iv),
@@ -50,7 +50,7 @@ int main() {
     // Decrypt and verify
     std::string recovered(ciphertext.size(), '\0');
     AES_CTR_HMAC_SHA256::Decryption dec;
-    dec.SetKeyWithIV(masterKey, masterKey.size(), iv, sizeof(iv));
+    dec.SetKey(masterKey, masterKey.size());
 
     bool valid = dec.DecryptAndVerify(
         (byte*)recovered.data(), tag, sizeof(tag),
@@ -366,7 +366,7 @@ One-shot encryption with authentication.
 **Parameters:**
 - `ciphertext` - Output buffer (same size as message)
 - `mac` - Output authentication tag
-- `macSize` - Size of MAC output. Default is 16 bytes. Must be between 12 and the hash digest size (32 for SHA-256, 64 for SHA-512); values less than 12 throw `InvalidArgument`
+- `macSize` - Size of MAC output. Default is 16 bytes. Must be between 12 and the hash digest size (32 for SHA-256, 64 for SHA-512); values outside this range throw `InvalidArgument`
 - `iv` - Initialization vector (12 bytes)
 - `ivLength` - IV length
 - `aad` - Additional authenticated data (can be NULL)
@@ -469,7 +469,7 @@ void threadFunc() {
 ## Exceptions
 
 - `InvalidKeyLength` - Master key size is not 16, 24, or 32 bytes
-- `InvalidArgument` - IV length is not 12 bytes, or `macSize` is less than 12 bytes
+- `InvalidArgument` - IV length is not 12 bytes, or `macSize` is outside the range [12, digest size]
 - `HashVerificationFilter::HashVerificationFailed` - Authentication tag verification failed (when using filters)
 
 ## See Also
