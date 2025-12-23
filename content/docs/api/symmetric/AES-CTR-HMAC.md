@@ -16,7 +16,6 @@ AES-CTR-HMAC is an Encrypt-then-MAC authenticated encryption scheme combining AE
 ```cpp
 #include <cryptopp/aes_ctr_hmac.h>
 #include <cryptopp/osrng.h>
-#include <cryptopp/hex.h>
 #include <iostream>
 
 int main() {

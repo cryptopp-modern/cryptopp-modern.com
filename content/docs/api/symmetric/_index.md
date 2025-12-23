@@ -23,6 +23,13 @@ Advanced Encryption Standard with Galois/Counter Mode
 - Database encryption
 - Any scenario requiring both encryption and authentication
 
+### [XAES-256-GCM](/docs/api/symmetric/xaes-256-gcm/)
+Extended-nonce variant of AES-256-GCM
+- 24-byte nonce enables safe random generation
+- No nonce tracking or coordination required
+- ~2^80 messages per key (vs ~2^32 for standard GCM)
+- Follows [C2SP XAES-256-GCM specification](https://c2sp.org/XAES-256-GCM)
+
 ### [ChaCha20-Poly1305](/docs/api/symmetric/chacha20-poly1305/)
 Modern authenticated encryption alternative
 - Excellent for systems without AES hardware acceleration
@@ -51,6 +58,13 @@ EAX authenticated encryption mode
 - Flexible nonce length (any size)
 - Good choice when GCM hardware unavailable
 
+### [AES-CTR-HMAC](/docs/api/symmetric/aes-ctr-hmac/)
+AES-CTR with HMAC authentication (Encrypt-then-MAC)
+- Automatic key derivation via HKDF (single master key)
+- Conservative security margins (HMAC vs GHASH)
+- Better nonce-reuse resilience than GCM
+- SHA-256 or SHA-512 variants
+
 ## Low-Level Primitives
 
 **Warning:** These are building blocks. Use AEAD modes above instead.
@@ -74,10 +88,12 @@ Don't use ECB mode; it's insecure and not recommended.
 | Mode/Cipher | Authentication | Parallel | Hardware Accel | Recommended |
 |-------------|---------------|----------|----------------|-------------|
 | **AES-GCM** | ✅ Yes | ✅ Yes | ✅ Yes | ⭐ Primary choice |
+| XAES-256-GCM | ✅ Yes | ✅ Yes | ✅ Yes | Random nonces (AES) |
 | ChaCha20-Poly1305 | ✅ Yes | ✅ Yes | ❌ No | Software systems |
 | XChaCha20-Poly1305 | ✅ Yes | ✅ Yes | ❌ No | Random nonces |
 | AES-CCM | ✅ Yes | Limited | ✅ Yes | Wi-Fi, Bluetooth, TLS |
 | AES-EAX | ✅ Yes | Partial | ✅ Yes | Simple AEAD |
+| AES-CTR-HMAC | ✅ Yes | ✅ Yes | ✅ Yes | Conservative security |
 | AES-CBC | ❌ No | ❌ No | ✅ Yes | Legacy only |
 | AES-CTR | ❌ No | ✅ Yes | ✅ Yes | With HMAC only |
 
@@ -101,13 +117,14 @@ Don't use ECB mode; it's insecure and not recommended.
 
 ## Security Best Practices
 
-1. **Always use authenticated encryption** (AES-GCM, ChaCha20-Poly1305, XChaCha20-Poly1305, EAX, CCM)
+1. **Always use authenticated encryption** (AES-GCM, XAES-256-GCM, ChaCha20-Poly1305, XChaCha20-Poly1305, AES-CTR-HMAC, EAX, CCM)
 2. **Never reuse IVs** with the same key
 3. **Generate random IVs** using `AutoSeededRandomPool`
 4. **Use 256-bit keys** for new systems (future-proof)
 5. **Verify authentication tags** - failed verification = tampered data
 6. **Store IVs with ciphertext** (IVs don't need to be secret)
 7. **Use `SecByteBlock`** for keys (auto-zeroing memory)
+8. **For random nonces at scale**, prefer XAES-256-GCM or XChaCha20-Poly1305
 
 ## Performance Notes
 
