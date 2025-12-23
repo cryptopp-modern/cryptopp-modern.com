@@ -366,7 +366,7 @@ One-shot encryption with authentication.
 **Parameters:**
 - `ciphertext` - Output buffer (same size as message)
 - `mac` - Output authentication tag
-- `macSize` - Size of MAC output. The default (and `TagSize()`) is 16 bytes. Values must be between 1 and the hash digest size (32 for SHA-256, 64 for SHA-512); larger values throw `InvalidArgument`
+- `macSize` - Size of MAC output. Default is 16 bytes. Must be between 12 and the hash digest size (32 for SHA-256, 64 for SHA-512); values less than 12 throw `InvalidArgument`
 - `iv` - Initialization vector (12 bytes)
 - `ivLength` - IV length
 - `aad` - Additional authenticated data (can be NULL)
@@ -405,7 +405,7 @@ The following methods return size information:
 
 **Tag size:**
 - `TagSize()` returns 16 by default
-- You can request a different size (up to the hash digest size) via `EncryptAndAuthenticate` / `DecryptAndVerify` / the filters
+- Minimum tag size is 12 bytes; maximum is the hash digest size (32 for SHA-256, 64 for SHA-512)
 
 ## Performance
 
@@ -429,7 +429,7 @@ The following methods return size information:
 | Encryption | AES-CTR (128/192/256-bit) |
 | Authentication | HMAC-SHA256 or HMAC-SHA512 |
 | IV size | 96 bits (12 bytes) |
-| Tag size | 128 bits default (configurable up to hash digest size) |
+| Tag size | 128 bits default (min 96 bits, max = hash digest size) |
 | Construction | Encrypt-then-MAC |
 
 ### Security Properties
@@ -469,7 +469,7 @@ void threadFunc() {
 ## Exceptions
 
 - `InvalidKeyLength` - Master key size is not 16, 24, or 32 bytes
-- `InvalidArgument` - IV length is not 12 bytes, or `macSize` exceeds the hash digest size
+- `InvalidArgument` - IV length is not 12 bytes, or `macSize` is less than 12 bytes
 - `HashVerificationFilter::HashVerificationFailed` - Authentication tag verification failed (when using filters)
 
 ## See Also
